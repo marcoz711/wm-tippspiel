@@ -1,0 +1,23 @@
+{
+  "tournament": "FIFA World Cup 2026 (SAMPLE DATA for testing)",
+  "generated": "2026-06-09",
+  "sources": ["sample"],
+  "groups": {
+    "A": ["Mexico", "South Korea", "South Africa", "Denmark"]
+  },
+  "teams": {
+    "Mexico": { "code": "MEX", "flag": "🇲🇽" },
+    "South Korea": { "code": "KOR", "flag": "🇰🇷" },
+    "South Africa": { "code": "RSA", "flag": "🇿🇦" },
+    "Denmark": { "code": "DEN", "flag": "🇩🇰" },
+    "Germany": { "code": "GER", "flag": "🇩🇪" },
+    "Spain": { "code": "ESP", "flag": "🇪🇸" }
+  },
+  "matches": [
+    { "id": 1, "stage": "group", "group": "A", "kickoffUTC": "2026-06-11T19:00:00Z", "home": "Mexico", "away": "South Korea", "venue": "Estadio Azteca", "city": "Mexico City" },
+    { "id": 2, "stage": "group", "group": "A", "kickoffUTC": "2026-06-12T01:00:00Z", "home": "South Africa", "away": "Denmark", "venue": "Estadio Akron", "city": "Guadalajara" },
+    { "id": 3, "stage": "group", "group": "A", "kickoffUTC": "2026-06-08T19:00:00Z", "home": "Germany", "away": "Spain", "venue": "Test (past, locked)", "city": "Test City" },
+    { "id": 90, "stage": "r16", "group": null, "kickoffUTC": "2026-07-04T20:00:00Z", "home": "1A", "away": "2B", "venue": "MetLife Stadium", "city": "New York" },
+    { "id": 104, "stage": "final", "group": null, "kickoffUTC": "2026-07-19T19:00:00Z", "home": "W101", "away": "W102", "venue": "MetLife Stadium", "city": "New York" }
+  ]
+}
