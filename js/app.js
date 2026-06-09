@@ -1,4 +1,4 @@
-import { createStore, api } from './store.js';
+import { createStore, api, mk } from './store.js';
 import { syncResults } from './sync.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang } from './i18n.js';
@@ -41,8 +41,8 @@ const isLocked = (m) => Date.now() >= kickoff(m).getTime();
 const isLive = (m) => isLocked(m) && Date.now() < kickoff(m).getTime() + 2.5 * 3600e3 && !getResult(m.id);
 const tournamentStarted = () => Date.now() >= new Date(TOURNAMENT_START_UTC).getTime();
 
-const getResult = (id) => state.db.results?.[id] ?? null;
-const getTip = (pid, id) => state.db.tips?.[pid]?.[id] ?? null;
+const getResult = (id) => state.db.results?.[mk(id)] ?? null;
+const getTip = (pid, id) => state.db.tips?.[pid]?.[mk(id)] ?? null;
 const players = () => state.db.players || {};
 const me = () => (state.pid ? players()[state.pid] : null);
 
@@ -56,7 +56,7 @@ function flagImg(emoji, cls = '') {
 }
 
 function resolveTeam(m, side) {
-  const ko = state.db.koTeams?.[m.id];
+  const ko = state.db.koTeams?.[mk(m.id)];
   const raw = ko?.[side] || m[side];
   const isReal = !!state.teams[raw];
   return { name: raw, real: isReal, flag: isReal ? flagOf(raw) : '❔', label: isReal ? raw : placeholderLabel(raw) };
@@ -240,8 +240,8 @@ function renderAllTips(m, result) {
 
 function resultForm(m, result) {
   const teamSelects = (!resolveTeam(m, 'home').real || !resolveTeam(m, 'away').real) ? `
-    <select class="select" data-koteam="home" data-mid="${m.id}">${teamOptions(state.db.koTeams?.[m.id]?.home)}</select>
-    <select class="select" data-koteam="away" data-mid="${m.id}">${teamOptions(state.db.koTeams?.[m.id]?.away)}</select>` : '';
+    <select class="select" data-koteam="home" data-mid="${m.id}">${teamOptions(state.db.koTeams?.[mk(m.id)]?.home)}</select>
+    <select class="select" data-koteam="away" data-mid="${m.id}">${teamOptions(state.db.koTeams?.[mk(m.id)]?.away)}</select>` : '';
   return `<div class="result-entry-form">
     ${teamSelects}
     <input class="score-input" type="number" min="0" max="20" inputmode="numeric" id="res-h-${m.id}" value="${result?.h ?? ''}" />
@@ -495,7 +495,7 @@ function bindView() {
     const m = state.matches.find((x) => x.id === id);
     for (const sel of $$(`select[data-koteam][data-mid="${id}"]`)) {
       if (sel.value) {
-        const cur = state.db.koTeams?.[id] || {};
+        const cur = state.db.koTeams?.[mk(id)] || {};
         await api.setKoTeams(state.store, id, { ...cur, [sel.dataset.koteam]: sel.value });
       }
     }

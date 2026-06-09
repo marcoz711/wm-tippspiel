@@ -63,10 +63,14 @@ export async function createStore() {
   return store;
 }
 
+// Match-id keys are prefixed ("m7") — bare numeric keys make Firebase
+// coerce the node into a sparse array.
+export const mk = (id) => `m${id}`;
+
 export const api = {
   setPlayer: (s, pid, player) => s.set(`players/${pid}`, player),
-  setTip: (s, pid, matchId, tip) => s.set(`tips/${pid}/${matchId}`, tip),
-  setResult: (s, matchId, result) => s.set(`results/${matchId}`, result),
+  setTip: (s, pid, matchId, tip) => s.set(`tips/${pid}/${mk(matchId)}`, tip),
+  setResult: (s, matchId, result) => s.set(`results/${mk(matchId)}`, result),
   setBonus: (s, pid, bonus) => s.set(`bonus/${pid}`, bonus),
-  setKoTeams: (s, matchId, teams) => s.set(`koTeams/${matchId}`, teams),
+  setKoTeams: (s, matchId, teams) => s.set(`koTeams/${mk(matchId)}`, teams),
 };

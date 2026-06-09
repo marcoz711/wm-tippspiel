@@ -1,4 +1,4 @@
-import { api } from './store.js';
+import { api, mk } from './store.js';
 
 // Auto-fills results (and knockout pairings) from the openfootball
 // community dataset: public domain, no API key, CORS-open, updated
@@ -55,7 +55,7 @@ export async function syncResults(state, store) {
 
     // Resolve knockout placeholders once real teams are known.
     if (ours.stage !== 'group' && state.teams[t1] && state.teams[t2] && !state.teams[ours.home]) {
-      const cur = state.db.koTeams?.[ours.id];
+      const cur = state.db.koTeams?.[mk(ours.id)];
       if (cur?.home !== t1 || cur?.away !== t2) {
         await api.setKoTeams(store, ours.id, { home: t1, away: t2 });
         updated++;
@@ -63,7 +63,7 @@ export async function syncResults(state, store) {
     }
 
     if (Array.isArray(score) && score.length === 2) {
-      const existing = state.db.results?.[ours.id];
+      const existing = state.db.results?.[mk(ours.id)];
       const fresh = { h: score[0], a: score[1], auto: true };
       if (!existing || (existing.auto && (existing.h !== fresh.h || existing.a !== fresh.a))) {
         if (ours.stage !== 'group' && fresh.h === fresh.a) {
