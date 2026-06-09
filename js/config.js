@@ -16,12 +16,10 @@ export const TOURNAMENT_START_UTC = '2026-06-11T19:00:00Z';
 // Paste the web app config from the Firebase console here and the app
 // switches from device-local storage to shared realtime storage.
 // Until then it runs on localStorage (single device, good for testing).
-export const FIREBASE_CONFIG = null;
-/* Example:
 export const FIREBASE_CONFIG = {
-  apiKey: "...",
-  authDomain: "wm-tippspiel-xxxx.firebaseapp.com",
-  databaseURL: "https://wm-tippspiel-xxxx-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "wm-tippspiel-xxxx",
+  apiKey: 'AIzaSyBbjhRhsD8BWcDhaasOAatQNtvAMH_Bnxk',
+  authDomain: 'wm-tippspiel-2026-bf3e4.firebaseapp.com',
+  databaseURL: 'https://wm-tippspiel-2026-bf3e4-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'wm-tippspiel-2026-bf3e4',
+  appId: '1:392955546715:web:2369f54f95b18e467f437e',
 };
-*/
