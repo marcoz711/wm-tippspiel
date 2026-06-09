@@ -1,12 +1,13 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-09 ~23:00 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-09 ~23:30 (Berlin) — **LIVE & VERIFIED** ✅
 
 ## What this is
 Family betting game for the FIFA World Cup 2026 (June 11 – July 19). Static web app, no build step. Built by Neo 2026-06-09 on Marc's Discord request, same evening from idea to live.
 
-- **Live:** https://thebruce030.github.io/wm-tippspiel/ (GitHub Pages, repo `thebruce030/wm-tippspiel`)
-- Marc may additionally deploy via Vercel + `wm.marcusbirke.de` (his idea, app is domain-independent)
+- **Family URL (primary):** https://wm2026.marcusbirke.de (Vercel, set up by Marc, auto-deploys from GitHub)
+- **Repo:** `marcoz711/wm-tippspiel` (transferred from thebruce030 2026-06-09; thebruce030 CLI still has push access, local remote updated)
+- **Secondary:** https://marcoz711.github.io/wm-tippspiel/ (GitHub Pages survived the transfer)
 - **Local dev:** `python -m http.server 8123` in repo root
 
 ## Verified end-to-end (2026-06-09)
