@@ -110,6 +110,9 @@ body {
   padding: 8px 16px; cursor: pointer; transition: all 0.15s;
 }
 .filter-chip.active { color: #06281c; background: var(--green); border-color: var(--green); }
+.group-select { -webkit-appearance: none; appearance: none; padding-right: 18px; }
+.group-select:focus { outline: none; border-color: var(--green); }
+.group-select option { color: var(--text); background: var(--bg-soft); }
 
 /* ── Match card ── */
 .match-card {

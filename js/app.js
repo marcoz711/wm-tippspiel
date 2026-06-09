@@ -141,8 +141,11 @@ function filteredMatches() {
 function renderMatches() {
   const chips = [
     ['today', t('today')], ['all', t('all')], ['ko', t('knockout')],
-    ...Object.keys(state.groups).sort().map((g) => [`g:${g}`, g]),
-  ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('');
+  ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('')
+  + `<select class="filter-chip group-select ${state.filter.startsWith('g:') ? 'active' : ''}" id="group-filter" aria-label="${t('group')}">
+      <option value="">${t('group')} ▾</option>
+      ${Object.keys(state.groups).sort().map((g) => `<option value="g:${g}" ${state.filter === `g:${g}` ? 'selected' : ''}>${t('group')} ${g}</option>`).join('')}
+    </select>`;
 
   const list = filteredMatches();
   if (!list.length) return `<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
@@ -463,6 +466,8 @@ function showPlayerOverlay() {
 // ── event binding ───────────────────────────────────────────────────
 function bindView() {
   $$('[data-filter]').forEach((b) => b.onclick = () => { state.filter = b.dataset.filter; render(); });
+  const gf = $('#group-filter');
+  if (gf) gf.onchange = () => { state.filter = gf.value || 'all'; render(); };
   $$('[data-teamsview]').forEach((b) => b.onclick = () => { state.teamsView = b.dataset.teamsview; render(); });
 
   $$('.step-btn').forEach((b) => b.onclick = () => {
