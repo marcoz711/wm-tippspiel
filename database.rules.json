@@ -1,0 +1,28 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    "players": {
+      "$pid": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['name', 'emoji'])"
+      }
+    },
+    "tips": {
+      "$pid": {
+        "$matchId": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['h', 'a']) && newData.child('h').isNumber() && newData.child('a').isNumber()"
+        }
+      }
+    },
+    "results": {
+      "$matchId": { ".write": "auth != null" }
+    },
+    "bonus": {
+      "$pid": { ".write": "auth != null" }
+    },
+    "koTeams": {
+      "$matchId": { ".write": "auth != null" }
+    }
+  }
+}
