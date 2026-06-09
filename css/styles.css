@@ -322,6 +322,16 @@ body {
   text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 14px 4px;
 }
 .fav-row-slim { grid-template-columns: 40px 1fr auto; padding: 8px 14px; }
+.fav-row-table { grid-template-columns: 24px 36px 1fr auto 34px; padding: 8px 14px; }
+.fav-row-table .fav-prob { font-size: 1rem; }
+.group-card-cols {
+  display: grid; grid-template-columns: 24px 36px 1fr auto 34px; gap: 10px;
+  padding: 2px 14px; font-size: 0.62rem; color: var(--text-faint); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.group-card-cols span:last-child { text-align: right; }
+.day-winner { border-color: rgba(251, 191, 36, 0.35); }
+.day-winner h2 { color: var(--gold); }
 
 /* ── Twemoji flag images ── */
 .flag-img { width: 2.1rem; height: auto; vertical-align: middle; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35)); }

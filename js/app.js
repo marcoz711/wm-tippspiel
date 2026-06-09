@@ -270,12 +270,29 @@ function championResult() {
   return res.winner === 'home' ? home.name : res.winner === 'away' ? away.name : null;
 }
 
+function dayWinner() {
+  // Most recent Berlin day that has at least one result.
+  const withResults = state.matches.filter((m) => getResult(m.id)?.h != null);
+  if (!withResults.length) return null;
+  const lastDay = berlinDayKey.format(kickoff(withResults[withResults.length - 1]));
+  const dayMatches = withResults.filter((m) => berlinDayKey.format(kickoff(m)) === lastDay);
+  const scores = Object.entries(players()).map(([pid, p]) => ({
+    p, pts: dayMatches.reduce((sum, m) => sum + scoreTip(getTip(pid, m.id), getResult(m.id)), 0),
+  }));
+  const max = Math.max(...scores.map((s) => s.pts));
+  if (max <= 0) return null;
+  return { day: berlinFmtDate().format(kickoff(dayMatches[0])), winners: scores.filter((s) => s.pts === max), pts: max };
+}
+
 function renderTable() {
   const rows = computeStandings({
     players: players(), tips: state.db.tips, results: state.db.results,
     bonus: state.db.bonus, championResult: championResult(),
   });
   if (!rows.length) return `<div class="empty-note">${t('whoAreYou')} 👋</div>`;
+  const dw = dayWinner();
+  const dwPanel = dw ? `<div class="panel day-winner"><h2>👑 ${t('dayWinner')} · ${dw.day}</h2>
+    <p>${dw.winners.map((w) => `${w.p.emoji} <b>${esc(w.p.name)}</b>`).join(' & ')} — ${dw.pts} ${t('points')}</p></div>` : '';
   const html = rows.map((r) => `
     <div class="lb-row ${r.pid === state.pid ? 'me' : ''}">
       <span class="lb-rank r${r.rank}">${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank + '.'}</span>
@@ -285,7 +302,7 @@ function renderTable() {
       </div>
       <div class="lb-pts">${r.points}<small>${t('pts')}</small></div>
     </div>`).join('');
-  return `<div class="lb-card">${html}</div>
+  return `${dwPanel}<div class="lb-card">${html}</div>
     <p class="stat-legend">${t('rulesText', SCORING)}</p>`;
 }
 
@@ -300,17 +317,37 @@ function renderFavorites() {
   return `<div class="filters">${sub}</div>${body}`;
 }
 
+function groupStandings(g) {
+  const stats = Object.fromEntries(state.groups[g].map((tm) => [tm, { team: tm, played: 0, pts: 0, gf: 0, ga: 0 }]));
+  for (const m of state.matches) {
+    if (m.group !== g || m.stage !== 'group') continue;
+    const res = getResult(m.id);
+    if (!res || res.h == null) continue;
+    const h = stats[m.home], a = stats[m.away];
+    if (!h || !a) continue;
+    h.played++; a.played++;
+    h.gf += res.h; h.ga += res.a; a.gf += res.a; a.ga += res.h;
+    if (res.h > res.a) h.pts += 3; else if (res.h < res.a) a.pts += 3; else { h.pts++; a.pts++; }
+  }
+  return Object.values(stats).sort((x, y) =>
+    y.pts - x.pts || (y.gf - y.ga) - (x.gf - x.ga) || y.gf - x.gf || (fifaRankOf(x.team) ?? 999) - (fifaRankOf(y.team) ?? 999));
+}
+
 function renderGroups() {
-  const cards = Object.entries(state.groups).map(([g, teams]) => {
-    const rows = [...teams]
-      .sort((a, b) => (fifaRankOf(a) ?? 999) - (fifaRankOf(b) ?? 999))
-      .map((name) => `
-      <div class="fav-row fav-row-slim">
-        <span class="fav-flag">${flagImg(flagOf(name) || '🏳️')}</span>
-        <div class="fav-name-wrap"><span class="fav-name">${esc(name)}</span></div>
-        <span class="fav-fifa">${fifaRankOf(name) != null ? '#' + fifaRankOf(name) : ''}</span>
+  const started = tournamentStarted();
+  const cards = Object.keys(state.groups).sort().map((g) => {
+    const rows = groupStandings(g).map((s, i) => `
+      <div class="fav-row fav-row-table">
+        <span class="fav-rank">${i + 1}.</span>
+        <span class="fav-flag">${flagImg(flagOf(s.team) || '🏳️')}</span>
+        <div class="fav-name-wrap"><span class="fav-name">${esc(s.team)}</span></div>
+        ${started
+          ? `<span class="fav-fifa">${s.played} | ${s.gf}:${s.ga}</span><span class="fav-prob">${s.pts}</span>`
+          : `<span class="fav-fifa"></span><span class="fav-fifa">${fifaRankOf(s.team) != null ? '#' + fifaRankOf(s.team) : ''}</span>`}
       </div>`).join('');
-    return `<div class="group-card"><div class="group-card-title">${t('group')} ${g}</div>${rows}</div>`;
+    const head = started
+      ? `<div class="group-card-cols"><span></span><span></span><span></span><span>Sp | Tore</span><span>Pkt</span></div>` : '';
+    return `<div class="group-card"><div class="group-card-title">${t('group')} ${g}</div>${head}${rows}</div>`;
   }).join('');
   return `<div class="group-grid">${cards}</div>
     <p class="stat-legend">${t('teamsExplain')}</p>`;
