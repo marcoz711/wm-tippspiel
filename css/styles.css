@@ -311,6 +311,18 @@ body {
 
 .empty-note { text-align: center; color: var(--text-dim); padding: 36px 16px; font-size: 0.95rem; line-height: 1.6; }
 
+/* ── Group cards (Teams tab) ── */
+.group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.group-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 6px 4px 4px;
+}
+.group-card-title {
+  font-size: 0.8rem; font-weight: 800; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 14px 4px;
+}
+.fav-row-slim { grid-template-columns: 40px 1fr auto; padding: 8px 14px; }
+
 /* ── Twemoji flag images ── */
 .flag-img { width: 2.1rem; height: auto; vertical-align: middle; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35)); }
 .fav-flag .flag-img { width: 1.7rem; }

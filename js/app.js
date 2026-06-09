@@ -1,4 +1,5 @@
 import { createStore, api } from './store.js';
+import { syncResults } from './sync.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang } from './i18n.js';
 import { SCORING, TOURNAMENT_START_UTC } from './config.js';
@@ -18,6 +19,7 @@ const state = {
   teamsInfo: null,
   tab: 'matches',
   filter: 'today',
+  teamsView: 'groups',
   pid: localStorage.getItem('wmtipp:pid') || null,
   expanded: new Set(),
   resultOpen: new Set(),
@@ -219,7 +221,7 @@ function stepper(mid, side, val) {
   const v = Number.isInteger(val) ? val : '';
   return `<div class="score-stepper">
     <button class="step-btn" data-step="1" data-mid="${mid}" data-side="${side}">+</button>
-    <input class="score-input" type="number" min="0" max="20" inputmode="numeric" value="${v}" data-mid="${mid}" data-side="${side}" />
+    <input class="score-input" type="number" min="0" max="20" inputmode="numeric" value="${v}" data-mid="${mid}" data-side="${side}" name="tip-${mid}-${side}" aria-label="Tipp ${side === 'h' ? 'Heim' : 'Auswärts'}" />
     <button class="step-btn" data-step="-1" data-mid="${mid}" data-side="${side}">−</button>
   </div>`;
 }
@@ -287,26 +289,49 @@ function renderTable() {
     <p class="stat-legend">${t('rulesText', SCORING)}</p>`;
 }
 
-// — favorites —
+// — teams (groups + world ranking) —
+function fifaRankOf(name) { return state.teamsInfo?.teams?.[name]?.fifaRank ?? null; }
+
 function renderFavorites() {
+  const sub = [
+    ['groups', t('groupsView')], ['ranking', t('rankingView')],
+  ].map(([k, label]) => `<button class="filter-chip ${state.teamsView === k ? 'active' : ''}" data-teamsview="${k}">${label}</button>`).join('');
+  const body = state.teamsView === 'ranking' ? renderWorldRanking() : renderGroups();
+  return `<div class="filters">${sub}</div>${body}`;
+}
+
+function renderGroups() {
+  const cards = Object.entries(state.groups).map(([g, teams]) => {
+    const rows = [...teams]
+      .sort((a, b) => (fifaRankOf(a) ?? 999) - (fifaRankOf(b) ?? 999))
+      .map((name) => `
+      <div class="fav-row fav-row-slim">
+        <span class="fav-flag">${flagImg(flagOf(name) || '🏳️')}</span>
+        <div class="fav-name-wrap"><span class="fav-name">${esc(name)}</span></div>
+        <span class="fav-fifa">${fifaRankOf(name) != null ? '#' + fifaRankOf(name) : ''}</span>
+      </div>`).join('');
+    return `<div class="group-card"><div class="group-card-title">${t('group')} ${g}</div>${rows}</div>`;
+  }).join('');
+  return `<div class="group-grid">${cards}</div>
+    <p class="stat-legend">${t('teamsExplain')}</p>`;
+}
+
+function renderWorldRanking() {
   if (!state.teamsInfo) return `<div class="empty-note">📊 …</div>`;
   const entries = Object.entries(state.teamsInfo.teams)
-    .sort((a, b) => (b[1].winProb ?? -1) - (a[1].winProb ?? -1) || (a[1].fifaRank ?? 999) - (b[1].fifaRank ?? 999));
-  const maxProb = Math.max(...entries.map(([, v]) => v.winProb ?? 0), 1);
-  const rows = entries.map(([name, v], i) => `
+    .sort((a, b) => (a[1].fifaRank ?? 999) - (b[1].fifaRank ?? 999));
+  const groupOf = {};
+  for (const [g, teams] of Object.entries(state.groups)) for (const tm of teams) groupOf[tm] = g;
+  const rows = entries.map(([name, v]) => `
     <div class="fav-row">
-      <span class="fav-rank">${i + 1}.</span>
+      <span class="fav-rank">#${v.fifaRank ?? '–'}</span>
       <span class="fav-flag">${flagImg(flagOf(name) || '🏳️')}</span>
-      <div class="fav-name-wrap">
-        <span class="fav-name">${esc(name)}${v.tier && v.tier !== 'outsider' ? `<span class="tier-pill tier-${v.tier}">${t('tier.' + v.tier)}</span>` : ''}</span>
-        <div class="fav-fifa">${t('fifaRank')} #${v.fifaRank ?? '–'}</div>
-        <div class="fav-bar-track"><div class="fav-bar" style="width:${Math.max(2, ((v.winProb ?? 0) / maxProb) * 100)}%"></div></div>
-      </div>
-      <span class="fav-prob">${v.winProb != null ? v.winProb + '%' : '–'}</span>
+      <div class="fav-name-wrap"><span class="fav-name">${esc(name)}</span></div>
+      <span class="fav-fifa">${t('group')} ${groupOf[name] || '–'}</span>
     </div>`).join('');
-  return `<div class="panel"><h2>${t('favTitle')}</h2><p>${t('favExplain')}</p></div>
+  return `<div class="panel" style="padding:14px 16px"><p>${t('teamsExplain')}</p></div>
     <div class="lb-card">${rows}</div>
-    <p class="stat-legend">${t('favSource')}: ${esc(state.teamsInfo.sources?.odds || '')}<br/>${esc(state.teamsInfo.sources?.ranking || '')}</p>`;
+    <p class="stat-legend">${t('favSource')}: ${esc(state.teamsInfo.sources?.ranking || '')}</p>`;
 }
 
 // — bonus —
@@ -400,6 +425,7 @@ function showPlayerOverlay() {
 // ── event binding ───────────────────────────────────────────────────
 function bindView() {
   $$('[data-filter]').forEach((b) => b.onclick = () => { state.filter = b.dataset.filter; render(); });
+  $$('[data-teamsview]').forEach((b) => b.onclick = () => { state.teamsView = b.dataset.teamsview; render(); });
 
   $$('.step-btn').forEach((b) => b.onclick = () => {
     const { mid, side, step } = b.dataset;
@@ -489,6 +515,13 @@ async function main() {
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'de' ? 'en' : 'de'); render(); };
   $('#player-chip').onclick = () => showPlayerOverlay();
   setInterval(() => { if (state.tab === 'matches') render(); }, 30000);
+
+  // Auto-fill results once the tournament runs (daily-updated source).
+  if (tournamentStarted()) {
+    const doSync = () => syncResults(state, state.store).then((r) => r.updated && console.info('[sync]', r));
+    setTimeout(doSync, 3000);
+    setInterval(doSync, 6 * 3600e3);
+  }
 }
 
 main().catch((err) => {
