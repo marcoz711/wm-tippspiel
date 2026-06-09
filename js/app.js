@@ -133,14 +133,15 @@ function filteredMatches() {
     const nextKey = berlinDayKey.format(kickoff(next));
     return state.matches.filter((m) => berlinDayKey.format(kickoff(m)) === nextKey);
   }
-  if (state.filter === 'group') return state.matches.filter((m) => m.stage === 'group');
   if (state.filter === 'ko') return state.matches.filter((m) => m.stage !== 'group');
+  if (state.filter.startsWith('g:')) { const g = state.filter.slice(2); return state.matches.filter((m) => m.group === g); }
   return state.matches;
 }
 
 function renderMatches() {
   const chips = [
-    ['today', t('today')], ['all', t('all')], ['group', t('groupStage')], ['ko', t('knockout')],
+    ['today', t('today')], ['all', t('all')], ['ko', t('knockout')],
+    ...Object.keys(state.groups).sort().map((g) => [`g:${g}`, g]),
   ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('');
 
   const list = filteredMatches();
