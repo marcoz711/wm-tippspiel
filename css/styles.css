@@ -75,6 +75,9 @@ body {
 .day-winner { border-color: var(--gold); }
 .day-winner h2 { color: #8a6500; }
 .demo-banner { border-color: var(--red); }
+.bonus-nudge { border-color: var(--gold); box-shadow: 4px 4px 0 rgba(245, 179, 1, 0.45); }
+.bonus-nudge .notice { font-size: 13px; color: var(--ink); font-weight: 700; }
+.bonus-nudge .select { margin-top: 8px; }
 .pot-panel p { color: var(--ink); }
 
 /* ── Date / stage headers ── */

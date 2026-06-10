@@ -177,10 +177,19 @@ function renderMatches() {
     <button class="filter-chip" data-refresh="1">🔄 ${t('refresh')}</button>`;
 
   const demoBanner = DEMO ? `<div class="panel demo-banner"><p>${t('demoBanner')}</p></div>` : '';
+  // Champion bonus nudge on the main page until the player has picked.
+  let bonusNudge = '';
+  if (state.pid && !tournamentStarted() && !state.db.bonus?.[state.pid]?.champion) {
+    bonusNudge = `<div class="card bonus-nudge">
+      <div class="match-meta"><span>⭐ ${esc(t('bonusTitle'))}</span><span class="badge pts-badge pts-4">+${SCORING.championBonus} ${t('pts')}</span></div>
+      <p class="notice">${t('bonusNudge', { pts: SCORING.championBonus })}</p>
+      <select class="select champion-select" id="champion-select-main">${teamOptions(null)}</select>
+    </div>`;
+  }
   const list = filteredMatches();
-  if (!list.length) return `${demoBanner}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
+  if (!list.length) return `${demoBanner}${bonusNudge}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
 
-  let html = `${demoBanner}<div class="filters">${chips}</div>`;
+  let html = `${demoBanner}${bonusNudge}<div class="filters">${chips}</div>`;
   let lastDay = '', lastStage = '';
   for (const m of list) {
     if (m.stage !== lastStage && m.stage !== 'group') {
@@ -648,13 +657,12 @@ function bindView() {
     if (choice.outcome === 'accepted') { installPrompt = null; toast(t('installed')); render(); }
   };
 
-  const champSel = $('#champion-select');
-  if (champSel) champSel.onchange = async () => {
+  $$('#champion-select, #champion-select-main').forEach((sel) => sel.onchange = async () => {
     if (!state.pid) return;
-    await api.setBonus(state.store, state.pid, { champion: champSel.value || null });
+    await api.setBonus(state.store, state.pid, { champion: sel.value || null });
     toast(t('saved'));
-    track('bonus_saved', { champion: champSel.value });
-  };
+    track('bonus_saved', { champion: sel.value });
+  });
 }
 
 async function saveTipFromInputs(mid) {
