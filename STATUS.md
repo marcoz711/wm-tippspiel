@@ -4,7 +4,9 @@
 
 ## Latest (2026-06-10 morning, per Marc via Discord)
 - **Design = Marc's mockup, adopted 1:1** ("retro pitch": striped green background, cream cards with 2px ink borders + hard offset shadows, gold accents, sticky gold day ribbons, trophy header with next-kickoff/open-tips chip, WR pills per team, ENDSTAND band, system fonts). Marc rejected my first "Flutlicht" dark/neon redesign and sent a JSX mockup — its CSS system is the reference (was `wm2026-tippspiel.jsx`, design tokens now in styles.css `:root`). Functionality stayed ours.
-- **German team names** in DE via `teamName()` map in i18n.js (data keys remain English). Filters: Heute/Offen/Alle/Gespielt/K.o./Gruppe▾ + manual 🔄 refresh. Kept from my pass: podium, movement arrows, confetti, Tagessieger, tipped-count (restyled).
+- **German team names** in DE via `teamName()` map in i18n.js (data keys remain English). Filters: Heute/Offen/Alle/K.o./Gruppe▾ + manual 🔄 refresh ("Gespielt" removed per Marc). Kept from my pass: podium, movement arrows, confetti, Tagessieger, tipped-count (restyled).
+- **PWA**: manifest + generated icons + network-first SW (`sw.js`, bump VERSION to invalidate) + install panel in Bonus tab (beforeinstallprompt / iOS hint).
+- **PostHog analytics** (EU): pageviews + player/tip/result/bonus events, identify by pid, off in demo mode. **Key = old wettervergleich project** (idle, no mixing) because Marc's personal API key lacks project:write; swap key in `js/config.js` POSTHOG once Marc creates a dedicated project.
 - **Demo mode** `?demo=1`: clock shifted to matchday 2 (2026-06-13), device-local sandbox (`wmtipp:demo` localStorage key), seeded players Anna/Ben (PIN 0000). For Marc to try result entry/scoring safely.
 - **Stake rules**: 2 € per player, pot split 50/30/20 to top 3 (config `STAKE` in config.js), live pot display in Rangliste + Bonus rules.
 - **Sync priority REVERSED per Marc**: openfootball auto-results now overwrite manual entries (source is authoritative).
