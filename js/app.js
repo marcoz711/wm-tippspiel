@@ -1,14 +1,22 @@
 import { createStore, api, mk } from './store.js';
 import { syncResults } from './sync.js';
+import { confetti } from './confetti.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang } from './i18n.js';
-import { SCORING, TOURNAMENT_START_UTC } from './config.js';
+import { SCORING, STAKE, TOURNAMENT_START_UTC } from './config.js';
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const EMOJIS = ['⚽', '🦁', '🦅', '🐺', '🦊', '🐻', '🐯', '🦄', '🐸', '🐙', '🦖', '🐬', '🦜', '🐢', '🚀', '🔥', '⭐', '🍀', '👑', '🎯', '🥨', '🍕', '🧙', '🤖'];
+
+// Demo mode (?demo=1): device-local sandbox, clock shifted to matchday 2
+// so result entry, points, and leaderboard can be tried before kickoff.
+const DEMO = new URLSearchParams(location.search).has('demo');
+const BOOT_REAL = Date.now();
+const DEMO_NOW = new Date('2026-06-13T09:00:00Z').getTime();
+const now = () => (DEMO ? DEMO_NOW + (Date.now() - BOOT_REAL) : Date.now());
 
 const state = {
   store: null,
@@ -37,9 +45,9 @@ const berlinFmtTime = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berli
 const berlinDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit' });
 
 const kickoff = (m) => new Date(m.kickoffUTC);
-const isLocked = (m) => Date.now() >= kickoff(m).getTime();
-const isLive = (m) => isLocked(m) && Date.now() < kickoff(m).getTime() + 2.5 * 3600e3 && !getResult(m.id);
-const tournamentStarted = () => Date.now() >= new Date(TOURNAMENT_START_UTC).getTime();
+const isLocked = (m) => now() >= kickoff(m).getTime();
+const isLive = (m) => isLocked(m) && now() < kickoff(m).getTime() + 2.5 * 3600e3 && !getResult(m.id);
+const tournamentStarted = () => now() >= new Date(TOURNAMENT_START_UTC).getTime();
 
 const getResult = (id) => state.db.results?.[mk(id)] ?? null;
 const getTip = (pid, id) => state.db.tips?.[pid]?.[mk(id)] ?? null;
@@ -123,7 +131,7 @@ function render() {
 
 // — matches —
 function filteredMatches() {
-  const todayKey = berlinDayKey.format(new Date());
+  const todayKey = berlinDayKey.format(new Date(now()));
   if (state.filter === 'today') {
     const todays = state.matches.filter((m) => berlinDayKey.format(kickoff(m)) === todayKey);
     if (todays.length) return todays;
@@ -138,6 +146,38 @@ function filteredMatches() {
   return state.matches;
 }
 
+// — hero: live match or next kickoff with ticking countdown —
+function featuredMatch() {
+  return state.matches.find((m) => isLive(m)) || state.matches.find((m) => !isLocked(m)) || null;
+}
+
+function fmtCountdown(ms) {
+  if (ms <= 0) return '00:00:00';
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const pad = (x) => String(x).padStart(2, '0');
+  const hms = `${pad(Math.floor((s % 86400) / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+  return d > 0 ? `${d}T ${hms}` : hms;
+}
+
+function renderHero() {
+  const m = featuredMatch();
+  if (!m) return '';
+  const live = isLive(m);
+  const home = resolveTeam(m, 'home'), away = resolveTeam(m, 'away');
+  const when = `${berlinFmtDate().format(kickoff(m))} · ${berlinFmtTime.format(kickoff(m))}`;
+  const label = m.stage === 'group' ? `${t('group')} ${m.group}` : t('stages.' + m.stage);
+  return `<div class="hero-card ${live ? 'hero-live' : ''}">
+    <div class="hero-label">${live ? `<span class="badge live-badge">● ${t('live')}</span>` : `⏳ ${t('nextMatch')} · ${label}`}</div>
+    <div class="hero-teams">
+      <div class="hero-team"><span class="hero-flag">${flagImg(home.flag)}</span><span class="hero-name">${esc(home.label)}</span></div>
+      <div class="hero-mid">${live ? '<span class="hero-vs">VS</span>' : `<span class="hero-cd" id="hero-cd" data-ko="${kickoff(m).getTime()}">${fmtCountdown(kickoff(m).getTime() - now())}</span>`}</div>
+      <div class="hero-team"><span class="hero-flag">${flagImg(away.flag)}</span><span class="hero-name">${esc(away.label)}</span></div>
+    </div>
+    <div class="hero-when">${when} · ${esc(m.city)}</div>
+  </div>`;
+}
+
 function renderMatches() {
   const chips = [
     ['today', t('today')], ['all', t('all')], ['ko', t('knockout')],
@@ -147,10 +187,11 @@ function renderMatches() {
       ${Object.keys(state.groups).sort().map((g) => `<option value="g:${g}" ${state.filter === `g:${g}` ? 'selected' : ''}>${t('group')} ${g}</option>`).join('')}
     </select>`;
 
+  const demoBanner = DEMO ? `<div class="panel demo-banner"><p>${t('demoBanner')}</p></div>` : '';
   const list = filteredMatches();
-  if (!list.length) return `<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
+  if (!list.length) return `${demoBanner}${renderHero()}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
 
-  let html = `<div class="filters">${chips}</div>`;
+  let html = `${demoBanner}${renderHero()}<div class="filters">${chips}</div>`;
   let lastDay = '', lastStage = '';
   for (const m of list) {
     if (m.stage !== lastStage && m.stage !== 'group') {
@@ -174,7 +215,7 @@ function renderMatchCard(m) {
   const expanded = state.expanded.has(m.id);
 
   const stageBadge = m.stage === 'group'
-    ? `<span class="badge group-badge">${t('group')} ${m.group}</span>`
+    ? `<span class="badge group-badge g-${m.group}">${t('group')} ${m.group}</span>`
     : `<span class="badge ko-badge">${t('stages.' + m.stage)}</span>`;
   const statusBadge = live ? `<span class="badge live-badge">● ${t('live')}</span>`
     : result && myTip ? ptsBadge(scoreTip(myTip, result))
@@ -196,6 +237,13 @@ function renderMatchCard(m) {
   }
 
   let extra = '';
+  if (!locked) {
+    const total = Object.keys(players()).length;
+    if (total > 1) {
+      const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
+      extra += `<div class="tipped-line ${n === total ? 'all-in' : ''}">👥 ${t('tipped', { n, m: total })}</div>`;
+    }
+  }
   if (locked && expanded) extra += renderAllTips(m, result);
   if (locked) {
     const open = state.resultOpen.has(m.id);
@@ -288,26 +336,64 @@ function dayWinner() {
   return { day: berlinFmtDate().format(kickoff(dayMatches[0])), winners: scores.filter((s) => s.pts === max), pts: max };
 }
 
+// Ranks as of the start of today (Berlin) — basis for movement arrows.
+function ranksAtDayStart() {
+  const todayKey = berlinDayKey.format(new Date(now()));
+  const prevResults = {};
+  for (const m of state.matches) {
+    const r = state.db.results?.[mk(m.id)];
+    if (r && berlinDayKey.format(kickoff(m)) !== todayKey) prevResults[mk(m.id)] = r;
+  }
+  const rows = computeStandings({ players: players(), tips: state.db.tips, results: prevResults, bonus: state.db.bonus, championResult: null });
+  return Object.fromEntries(rows.map((r) => [r.pid, r.rank]));
+}
+
+function renderPodium(rows) {
+  const hasResults = Object.values(state.db.results || {}).some((r) => r && r.h != null);
+  if (!hasResults || rows.length < 2) return '';
+  const top = rows.slice(0, 3);
+  const order = top.length === 3 ? [top[1], top[0], top[2]] : [top[0], top[1]];
+  const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+  return `<div class="podium">${order.map((r) => `
+    <div class="podium-col podium-r${r.rank}">
+      <span class="podium-emoji">${r.emoji}</span>
+      <span class="podium-name">${esc(r.name)}</span>
+      <div class="podium-block"><span>${medals[r.rank] || r.rank}</span><b>${r.points}</b></div>
+    </div>`).join('')}</div>`;
+}
+
 function renderTable() {
   const rows = computeStandings({
     players: players(), tips: state.db.tips, results: state.db.results,
     bonus: state.db.bonus, championResult: championResult(),
   });
   if (!rows.length) return `<div class="empty-note">${t('whoAreYou')} 👋</div>`;
+  const prevRanks = ranksAtDayStart();
   const dw = dayWinner();
   const dwPanel = dw ? `<div class="panel day-winner"><h2>👑 ${t('dayWinner')} · ${dw.day}</h2>
     <p>${dw.winners.map((w) => `${w.p.emoji} <b>${esc(w.p.name)}</b>`).join(' & ')} — ${dw.pts} ${t('points')}</p></div>` : '';
-  const html = rows.map((r) => `
+  const html = rows.map((r) => {
+    const prev = prevRanks[r.pid];
+    const move = prev == null || prev === r.rank ? '' : prev > r.rank
+      ? `<span class="move up">▲${prev - r.rank}</span>` : `<span class="move down">▼${r.rank - prev}</span>`;
+    return `
     <div class="lb-row ${r.pid === state.pid ? 'me' : ''}">
       <span class="lb-rank r${r.rank}">${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank + '.'}</span>
       <div class="lb-who"><span class="emoji">${r.emoji}</span>
-        <div><div class="nm">${esc(r.name)}</div>
+        <div><div class="nm">${esc(r.name)} ${move}</div>
         <div class="sub">${t('exact')} ${r.exact} · ${t('diffHits')} ${r.diff} · ${t('tendHits')} ${r.tend}${r.bonusPts ? ` · ⭐+${r.bonusPts}` : ''}</div></div>
       </div>
       <div class="lb-pts">${r.points}<small>${t('pts')}</small></div>
-    </div>`).join('');
-  return `${dwPanel}<div class="lb-card">${html}</div>
-    <p class="stat-legend">${t('rulesText', SCORING)}</p>`;
+    </div>`;
+  }).join('');
+  const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
+  const total = rows.length * STAKE.fee;
+  const potPanel = `<div class="panel pot-panel"><p>💰 ${t('potLine', {
+    fee: STAKE.fee, total: fmt(total),
+    p1: fmt(total * STAKE.split[0]), p2: fmt(total * STAKE.split[1]), p3: fmt(total * STAKE.split[2]),
+  })}</p></div>`;
+  return `${dwPanel}${renderPodium(rows)}<div class="lb-card">${html}</div>
+    ${potPanel}<p class="stat-legend">${t('rulesText', SCORING)}</p>`;
 }
 
 // — teams (groups + world ranking) —
@@ -395,7 +481,13 @@ function renderBonus() {
       <p>${t('bonusExplain', { pts: SCORING.championBonus })}</p>
       ${pickUI}
     </div>
-    <div class="panel"><h2>📜 ${t('rules')}</h2><p>${t('rulesText', SCORING)}</p></div>`;
+    <div class="panel"><h2>📜 ${t('rules')}</h2><p>${t('rulesText', SCORING)}</p>
+    <p style="margin-top:10px">💰 ${t('potLine', {
+      fee: STAKE.fee, total: Object.keys(players()).length * STAKE.fee,
+      p1: Object.keys(players()).length * STAKE.fee * STAKE.split[0],
+      p2: Object.keys(players()).length * STAKE.fee * STAKE.split[1],
+      p3: Object.keys(players()).length * STAKE.fee * STAKE.split[2],
+    })}</p></div>`;
 }
 
 // ── player onboarding ───────────────────────────────────────────────
@@ -460,6 +552,7 @@ function showPlayerOverlay() {
     localStorage.setItem('wmtipp:pid', pid);
     $('#overlay').classList.add('hidden');
     render();
+    checkCelebration(); // store the points baseline for this player
   }
 }
 
@@ -516,10 +609,11 @@ function bindView() {
           result.winner = w.toLowerCase().startsWith(home.label.toLowerCase().slice(0, 3)) ? 'home' : 'away';
         }
       }
-      await api.setResult(state.store, id, result);
+      state.resultOpen.delete(id);
+      toast(t('saved'));
+      await api.setResult(state.store, id, result); // celebration toast may follow
     }
     state.resultOpen.delete(id);
-    toast(t('saved'));
     render();
   });
 
@@ -544,15 +638,58 @@ async function saveTipFromInputs(mid) {
 }
 
 // ── boot ────────────────────────────────────────────────────────────
+async function seedDemo() {
+  if (Object.keys(players()).length) return;
+  const pin = await sha256('0000');
+  await api.setPlayer(state.store, 'anna', { name: 'Anna', emoji: '🦊', pin });
+  await api.setPlayer(state.store, 'ben', { name: 'Ben', emoji: '🦁', pin });
+  await api.setTip(state.store, 'anna', 1, { h: 2, a: 1 });
+  await api.setTip(state.store, 'anna', 2, { h: 1, a: 0 });
+  await api.setTip(state.store, 'anna', 4, { h: 2, a: 0 });
+  await api.setTip(state.store, 'ben', 1, { h: 1, a: 1 });
+  await api.setTip(state.store, 'ben', 2, { h: 0, a: 0 });
+  await api.setTip(state.store, 'ben', 4, { h: 1, a: 2 });
+  await api.setResult(state.store, 1, { h: 2, a: 1 });
+}
+
+function checkCelebration() {
+  if (!state.pid) return;
+  const rows = computeStandings({
+    players: players(), tips: state.db.tips, results: state.db.results,
+    bonus: state.db.bonus, championResult: championResult(),
+  });
+  const me = rows.find((r) => r.pid === state.pid);
+  if (!me) return;
+  const key = `wmtipp:lastpts:${state.pid}${DEMO ? ':demo' : ''}`;
+  const prev = localStorage.getItem(key);
+  if (prev != null && me.points > +prev) {
+    confetti();
+    toast(`+${me.points - +prev} ${t('pointsGained')} 🎉`);
+  }
+  localStorage.setItem(key, me.points);
+}
+
 async function main() {
   await Promise.all([loadFixtures(), loadTeamsInfo()]);
-  state.store = await createStore();
-  state.store.onData((data) => {
+  state.store = await createStore({ forceLocal: DEMO, lsKey: DEMO ? 'wmtipp:demo' : undefined });
+  let seeded = false;
+  state.store.onData(async (data) => {
     state.db = data || {};
+    if (DEMO && !seeded) { seeded = true; await seedDemo(); }
     if (state.pid && !players()[state.pid]) { state.pid = null; localStorage.removeItem('wmtipp:pid'); }
     render();
+    checkCelebration();
     if (!state.pid) showPlayerOverlay();
   });
+
+  // Hero countdown ticks every second without re-rendering the view.
+  setInterval(() => {
+    const el = $('#hero-cd');
+    if (!el) return;
+    const left = +el.dataset.ko - now();
+    el.textContent = fmtCountdown(left);
+    if (left <= 0) render();
+  }, 1000);
 
   $$('.tab').forEach((b) => b.onclick = () => { state.tab = b.dataset.tab; render(); });
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'de' ? 'en' : 'de'); render(); };

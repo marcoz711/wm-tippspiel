@@ -9,6 +9,9 @@ export const SCORING = {
   championBonus: 10, // locked at first kickoff
 };
 
+// Entry fee per player (EUR) and pot split for the top 3.
+export const STAKE = { fee: 2, split: [0.5, 0.3, 0.2] };
+
 // Knockout tips are scored on the result after 90 minutes (Kicktipp standard).
 export const TOURNAMENT_START_UTC = '2026-06-11T19:00:00Z';
 

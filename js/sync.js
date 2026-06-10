@@ -2,8 +2,8 @@ import { api, mk } from './store.js';
 
 // Auto-fills results (and knockout pairings) from the openfootball
 // community dataset: public domain, no API key, CORS-open, updated
-// roughly once a day during the tournament. Manual entries always win —
-// the sync only writes results that are missing or that it wrote itself.
+// roughly once a day during the tournament. The source is authoritative:
+// it overwrites manual entries when they differ (per Marc, 2026-06-10).
 const SRC = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 
 const ALIASES = {
@@ -65,7 +65,7 @@ export async function syncResults(state, store) {
     if (Array.isArray(score) && score.length === 2) {
       const existing = state.db.results?.[mk(ours.id)];
       const fresh = { h: score[0], a: score[1], auto: true };
-      if (!existing || (existing.auto && (existing.h !== fresh.h || existing.a !== fresh.a))) {
+      if (!existing || existing.h !== fresh.h || existing.a !== fresh.a) {
         if (ours.stage !== 'group' && fresh.h === fresh.a) {
           // 90-min draw in a KO match: take the advancing team from ET/pens if present.
           const et = tm.score?.et, p = tm.score?.p;

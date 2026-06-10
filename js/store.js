@@ -10,12 +10,13 @@ import { FIREBASE_CONFIG } from './config.js';
 const LS_KEY = 'wmtipp:db';
 
 class LocalStore {
-  constructor() {
-    this.data = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  constructor(key = LS_KEY) {
+    this.key = key;
+    this.data = JSON.parse(localStorage.getItem(this.key) || '{}');
     this.listeners = [];
     // Pick up writes from other tabs on the same device.
     window.addEventListener('storage', (e) => {
-      if (e.key === LS_KEY) {
+      if (e.key === this.key) {
         this.data = JSON.parse(e.newValue || '{}');
         this._emit();
       }
@@ -24,7 +25,7 @@ class LocalStore {
   async init() { return this; }
   onData(cb) { this.listeners.push(cb); cb(this.data); }
   _emit() { for (const cb of this.listeners) cb(this.data); }
-  _persist() { localStorage.setItem(LS_KEY, JSON.stringify(this.data)); this._emit(); }
+  _persist() { localStorage.setItem(this.key, JSON.stringify(this.data)); this._emit(); }
   async set(path, value) {
     const parts = path.split('/');
     let node = this.data;
@@ -57,8 +58,8 @@ class FirebaseStore {
   }
 }
 
-export async function createStore() {
-  const store = FIREBASE_CONFIG ? new FirebaseStore() : new LocalStore();
+export async function createStore({ forceLocal = false, lsKey } = {}) {
+  const store = (FIREBASE_CONFIG && !forceLocal) ? new FirebaseStore() : new LocalStore(lsKey);
   await store.init();
   return store;
 }
