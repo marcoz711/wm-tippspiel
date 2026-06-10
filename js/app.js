@@ -2,7 +2,7 @@ import { createStore, api, mk } from './store.js';
 import { syncResults } from './sync.js';
 import { confetti } from './confetti.js';
 import { scoreTip, computeStandings } from './scoring.js';
-import { t, getLang, setLang } from './i18n.js';
+import { t, getLang, setLang, teamName } from './i18n.js';
 import { SCORING, STAKE, TOURNAMENT_START_UTC } from './config.js';
 
 const $ = (sel, el = document) => el.querySelector(sel);
@@ -67,7 +67,7 @@ function resolveTeam(m, side) {
   const ko = state.db.koTeams?.[mk(m.id)];
   const raw = ko?.[side] || m[side];
   const isReal = !!state.teams[raw];
-  return { name: raw, real: isReal, flag: isReal ? flagOf(raw) : '❔', label: isReal ? raw : placeholderLabel(raw) };
+  return { name: raw, real: isReal, flag: isReal ? flagOf(raw) : '❔', label: isReal ? teamName(raw) : placeholderLabel(raw) };
 }
 
 function placeholderLabel(p) {
@@ -116,7 +116,8 @@ function render() {
   state.pendingRender = false;
   $$('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.tab));
   $('#lang-toggle').textContent = getLang().toUpperCase();
-  $('#app-title').textContent = `🏆 ${t('appTitle')}`;
+  $('#app-title').textContent = t('appTitle');
+  updateInfoChip();
   const p = me();
   $('#player-chip').textContent = p ? `${p.emoji} ${p.name}` : '👤';
   $$('.tab-label').forEach((el) => { el.textContent = t(el.parentElement.dataset.tab === 'matches' ? 'tabMatches' : el.parentElement.dataset.tab === 'table' ? 'tabTable' : el.parentElement.dataset.tab === 'favorites' ? 'tabFavorites' : 'tabBonus'); });
@@ -142,64 +143,51 @@ function filteredMatches() {
     return state.matches.filter((m) => berlinDayKey.format(kickoff(m)) === nextKey);
   }
   if (state.filter === 'ko') return state.matches.filter((m) => m.stage !== 'group');
+  if (state.filter === 'open') return state.matches.filter((m) => !isLocked(m));
+  if (state.filter === 'played') return state.matches.filter((m) => isLocked(m));
   if (state.filter.startsWith('g:')) { const g = state.filter.slice(2); return state.matches.filter((m) => m.group === g); }
   return state.matches;
 }
 
-// — hero: live match or next kickoff with ticking countdown —
-function featuredMatch() {
-  return state.matches.find((m) => isLive(m)) || state.matches.find((m) => !isLocked(m)) || null;
-}
-
-function fmtCountdown(ms) {
-  if (ms <= 0) return '00:00:00';
-  const s = Math.floor(ms / 1000);
-  const d = Math.floor(s / 86400);
-  const pad = (x) => String(x).padStart(2, '0');
-  const hms = `${pad(Math.floor((s % 86400) / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
-  return d > 0 ? `${d}T ${hms}` : hms;
-}
-
-function renderHero() {
-  const m = featuredMatch();
-  if (!m) return '';
-  const live = isLive(m);
-  const home = resolveTeam(m, 'home'), away = resolveTeam(m, 'away');
-  const when = `${berlinFmtDate().format(kickoff(m))} · ${berlinFmtTime.format(kickoff(m))}`;
-  const label = m.stage === 'group' ? `${t('group')} ${m.group}` : t('stages.' + m.stage);
-  return `<div class="hero-card ${live ? 'hero-live' : ''}">
-    <div class="hero-label">${live ? `<span class="badge live-badge">● ${t('live')}</span>` : `⏳ ${t('nextMatch')} · ${label}`}</div>
-    <div class="hero-teams">
-      <div class="hero-team"><span class="hero-flag">${flagImg(home.flag)}</span><span class="hero-name">${esc(home.label)}</span></div>
-      <div class="hero-mid">${live ? '<span class="hero-vs">VS</span>' : `<span class="hero-cd" id="hero-cd" data-ko="${kickoff(m).getTime()}">${fmtCountdown(kickoff(m).getTime() - now())}</span>`}</div>
-      <div class="hero-team"><span class="hero-flag">${flagImg(away.flag)}</span><span class="hero-name">${esc(away.label)}</span></div>
-    </div>
-    <div class="hero-when">${when} · ${esc(m.city)}</div>
-  </div>`;
+// — header info chip: next kickoff + my open tips —
+function updateInfoChip() {
+  const el = $('#info-chip');
+  if (!el) return;
+  const next = state.matches.find((m) => !isLocked(m));
+  if (!next) { el.textContent = '🏁'; return; }
+  const de = getLang() === 'de';
+  const dayFmt = new Intl.DateTimeFormat(de ? 'de-DE' : 'en-GB', { timeZone: 'Europe/Berlin', weekday: 'long', day: 'numeric', month: 'long' });
+  let text = `⚽ ${t('nextKickoff')}: ${dayFmt.format(kickoff(next))}, ${berlinFmtTime.format(kickoff(next))}${de ? ' Uhr' : ''}`;
+  if (state.pid) {
+    const openN = state.matches.filter((m) => !isLocked(m) && !getTip(state.pid, m.id)).length;
+    text += ` · ${t('openTips', { n: openN })}`;
+  }
+  el.textContent = text;
 }
 
 function renderMatches() {
   const chips = [
-    ['today', t('today')], ['all', t('all')], ['ko', t('knockout')],
+    ['today', t('today')], ['open', t('filterOpen')], ['all', t('all')], ['played', t('filterPlayed')], ['ko', t('knockout')],
   ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('')
   + `<select class="filter-chip group-select ${state.filter.startsWith('g:') ? 'active' : ''}" id="group-filter" aria-label="${t('group')}">
       <option value="">${t('group')} ▾</option>
       ${Object.keys(state.groups).sort().map((g) => `<option value="g:${g}" ${state.filter === `g:${g}` ? 'selected' : ''}>${t('group')} ${g}</option>`).join('')}
-    </select>`;
+    </select>
+    <button class="filter-chip" data-refresh="1">🔄 ${t('refresh')}</button>`;
 
   const demoBanner = DEMO ? `<div class="panel demo-banner"><p>${t('demoBanner')}</p></div>` : '';
   const list = filteredMatches();
-  if (!list.length) return `${demoBanner}${renderHero()}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
+  if (!list.length) return `${demoBanner}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
 
-  let html = `${demoBanner}${renderHero()}<div class="filters">${chips}</div>`;
+  let html = `${demoBanner}<div class="filters">${chips}</div>`;
   let lastDay = '', lastStage = '';
   for (const m of list) {
     if (m.stage !== lastStage && m.stage !== 'group') {
-      html += `<div class="stage-header">${t('stages.' + m.stage)}</div>`;
+      html += `<div class="stage-header"><span class="display">${t('stages.' + m.stage)}</span></div>`;
     }
     lastStage = m.stage;
     const day = berlinFmtDate().format(kickoff(m));
-    if (day !== lastDay) { html += `<div class="date-header">${day}</div>`; lastDay = day; }
+    if (day !== lastDay) { html += `<div class="date-header"><span>${day}</span></div>`; lastDay = day; }
     html += renderMatchCard(m);
   }
   return html;
@@ -214,35 +202,36 @@ function renderMatchCard(m) {
   const away = resolveTeam(m, 'away');
   const expanded = state.expanded.has(m.id);
 
-  const stageBadge = m.stage === 'group'
-    ? `<span class="badge group-badge g-${m.group}">${t('group')} ${m.group}</span>`
-    : `<span class="badge ko-badge">${t('stages.' + m.stage)}</span>`;
+  const stageLabel = m.stage === 'group' ? `${t('group')} ${m.group}` : t('stages.' + m.stage);
   const statusBadge = live ? `<span class="badge live-badge">● ${t('live')}</span>`
     : result && myTip ? ptsBadge(scoreTip(myTip, result))
     : '';
 
+  const wr = (side) => {
+    const rank = side.real ? fifaRankOf(side.name) : null;
+    return rank != null ? `<span class="wr">WR ${rank}</span>` : '';
+  };
+
   let center;
   if (!locked) {
-    center = `<div class="tip-box">
+    center = `<div class="mid">
       ${stepper(m.id, 'h', myTip?.h)}
-      <span class="score-sep">:</span>
+      <span class="vs">:</span>
       ${stepper(m.id, 'a', myTip?.a)}
     </div>`;
   } else {
-    const big = result ? `${result.h} : ${result.a}` : `– : –`;
-    center = `<div class="locked-tip">
-      <span class="locked-score is-result">${big}</span>
-      <span class="your-tip-line">${t('yourTip')}: ${myTip ? `${myTip.h}:${myTip.a}` : t('noTip')}</span>
-    </div>`;
+    const box = (v) => `<div class="scorebox static ${v == null ? 'empty' : ''}">${v == null ? '–' : v}</div>`;
+    center = `<div class="mid">${box(myTip?.h)}<span class="vs">:</span>${box(myTip?.a)}</div>`;
   }
 
   let extra = '';
+  if (locked && result) {
+    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span></div>`;
+  }
   if (!locked) {
     const total = Object.keys(players()).length;
-    if (total > 1) {
-      const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
-      extra += `<div class="tipped-line ${n === total ? 'all-in' : ''}">👥 ${t('tipped', { n, m: total })}</div>`;
-    }
+    const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
+    extra += `<div class="lockline">🔒 ${t('lockNote')}${total > 1 ? ` · 👥 ${t('tipped', { n, m: total })}` : ''}</div>`;
   }
   if (locked && expanded) extra += renderAllTips(m, result);
   if (locked) {
@@ -253,15 +242,15 @@ function renderMatchCard(m) {
     </div>`;
   }
 
-  return `<div class="match-card ${live ? 'live' : ''}" data-mid="${m.id}">
+  return `<div class="match-card card ${live ? 'live' : ''}" data-mid="${m.id}">
     <div class="match-meta">
-      <div class="meta-left">${stageBadge}<span>${t('kickoffAt')} ${berlinFmtTime.format(kickoff(m))}</span></div>
-      ${statusBadge}
+      <span>${esc(stageLabel)}</span>
+      <span class="meta-right">${statusBadge} ${berlinFmtTime.format(kickoff(m))}${getLang() === 'de' ? ' Uhr' : ''}</span>
     </div>
     <div class="match-row" ${locked ? `data-expand="${m.id}"` : ''}>
-      <div class="team"><span class="flag">${flagImg(home.flag)}</span><span class="tname ${home.real ? '' : 'placeholder'}">${esc(home.label)}</span></div>
+      <div class="team"><span class="flag">${flagImg(home.flag)}</span><span class="tname ${home.real ? '' : 'placeholder'}">${esc(home.label)}</span>${wr(home)}</div>
       ${center}
-      <div class="team"><span class="flag">${flagImg(away.flag)}</span><span class="tname ${away.real ? '' : 'placeholder'}">${esc(away.label)}</span></div>
+      <div class="team"><span class="flag">${flagImg(away.flag)}</span><span class="tname ${away.real ? '' : 'placeholder'}">${esc(away.label)}</span>${wr(away)}</div>
     </div>
     ${extra}
   </div>`;
@@ -304,8 +293,8 @@ function resultForm(m, result) {
 }
 
 function teamOptions(selected) {
-  const names = Object.keys(state.teams).sort();
-  return `<option value="">${t('pickChampion')}</option>` + names.map((n) => `<option value="${esc(n)}" ${n === selected ? 'selected' : ''}>${flagOf(n)} ${esc(n)}</option>`).join('');
+  const names = Object.keys(state.teams).sort((a, b) => teamName(a).localeCompare(teamName(b)));
+  return `<option value="">${t('pickChampion')}</option>` + names.map((n) => `<option value="${esc(n)}" ${n === selected ? 'selected' : ''}>${flagOf(n)} ${esc(teamName(n))}</option>`).join('');
 }
 
 // — leaderboard —
@@ -430,7 +419,7 @@ function renderGroups() {
       <div class="fav-row fav-row-table">
         <span class="fav-rank">${i + 1}.</span>
         <span class="fav-flag">${flagImg(flagOf(s.team) || '🏳️')}</span>
-        <div class="fav-name-wrap"><span class="fav-name">${esc(s.team)}</span></div>
+        <div class="fav-name-wrap"><span class="fav-name">${esc(teamName(s.team))}</span></div>
         ${started
           ? `<span class="fav-fifa">${s.played} | ${s.gf}:${s.ga}</span><span class="fav-prob">${s.pts}</span>`
           : `<span class="fav-fifa"></span><span class="fav-fifa">${fifaRankOf(s.team) != null ? '#' + fifaRankOf(s.team) : ''}</span>`}
@@ -453,7 +442,7 @@ function renderWorldRanking() {
     <div class="fav-row">
       <span class="fav-rank">#${v.fifaRank ?? '–'}</span>
       <span class="fav-flag">${flagImg(flagOf(name) || '🏳️')}</span>
-      <div class="fav-name-wrap"><span class="fav-name">${esc(name)}</span></div>
+      <div class="fav-name-wrap"><span class="fav-name">${esc(teamName(name))}</span></div>
       <span class="fav-fifa">${t('group')} ${groupOf[name] || '–'}</span>
     </div>`).join('');
   return `<div class="panel" style="padding:14px 16px"><p>${t('teamsExplain')}</p></div>
@@ -470,7 +459,7 @@ function renderBonus() {
     const rows = Object.entries(players()).map(([pid, p]) => {
       const pick = state.db.bonus?.[pid]?.champion;
       return `<div class="tip-row-line"><span class="who"><span>${p.emoji}</span> ${esc(p.name)}</span>
-        <span class="tipval">${pick ? `${flagImg(flagOf(pick), 'flag-inline')} ${esc(pick)}` : `<span class="no-tip">${t('noTip')}</span>`}</span></div>`;
+        <span class="tipval">${pick ? `${flagImg(flagOf(pick), 'flag-inline')} ${esc(teamName(pick))}` : `<span class="no-tip">${t('noTip')}</span>`}</span></div>`;
     }).join('');
     pickUI = `<p>${t('bonusLocked')}</p><div class="all-tips">${rows}</div>`;
   } else {
@@ -561,6 +550,13 @@ function bindView() {
   $$('[data-filter]').forEach((b) => b.onclick = () => { state.filter = b.dataset.filter; render(); });
   const gf = $('#group-filter');
   if (gf) gf.onchange = () => { state.filter = gf.value || 'all'; render(); };
+  const rf = $('[data-refresh]');
+  if (rf) rf.onclick = async () => {
+    rf.disabled = true;
+    await syncResults(state, state.store).catch(() => {});
+    toast(t('refreshed'));
+    render();
+  };
   $$('[data-teamsview]').forEach((b) => b.onclick = () => { state.teamsView = b.dataset.teamsview; render(); });
 
   $$('.step-btn').forEach((b) => b.onclick = () => {
@@ -682,14 +678,6 @@ async function main() {
     if (!state.pid) showPlayerOverlay();
   });
 
-  // Hero countdown ticks every second without re-rendering the view.
-  setInterval(() => {
-    const el = $('#hero-cd');
-    if (!el) return;
-    const left = +el.dataset.ko - now();
-    el.textContent = fmtCountdown(left);
-    if (left <= 0) render();
-  }, 1000);
 
   $$('.tab').forEach((b) => b.onclick = () => { state.tab = b.dataset.tab; render(); });
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'de' ? 'en' : 'de'); render(); };

@@ -1,7 +1,12 @@
 const dict = {
   de: {
-    appTitle: 'WM-Tippspiel 2026',
-    tabMatches: 'Spiele', tabTable: 'Rangliste', tabBonus: 'Bonus', tabFavorites: 'Teams',
+    appTitle: 'WM 2026 Tippspiel',
+    tabMatches: 'Spiele', tabTable: 'Tabelle', tabBonus: 'Bonus', tabFavorites: 'Teams',
+    filterOpen: 'Offen', filterPlayed: 'Gespielt', refresh: 'Aktualisieren', refreshed: 'Aktualisiert ✓',
+    nextKickoff: 'Nächster Anpfiff',
+    openTips: '{n} offene Tipps',
+    lockNote: 'Tippabgabe bis Anpfiff',
+    endstand: 'Endstand',
     groupsView: 'Gruppen', rankingView: 'Weltrangliste',
     teamsExplain: 'FIFA-Weltrangliste (Stand April 2026) — Orientierung für alle, die "einfach mal tippen" wollen.',
     favSource: 'Quelle',
@@ -52,8 +57,13 @@ const dict = {
     confirmName: 'Diesen Spieler gibt es schon. Bist du das?',
   },
   en: {
-    appTitle: 'World Cup Predictor 2026',
-    tabMatches: 'Matches', tabTable: 'Standings', tabBonus: 'Bonus', tabFavorites: 'Teams',
+    appTitle: 'WC 2026 Predictor',
+    tabMatches: 'Matches', tabTable: 'Table', tabBonus: 'Bonus', tabFavorites: 'Teams',
+    filterOpen: 'Open', filterPlayed: 'Played', refresh: 'Refresh', refreshed: 'Refreshed ✓',
+    nextKickoff: 'Next kickoff',
+    openTips: '{n} open tips',
+    lockNote: 'Tips close at kickoff',
+    endstand: 'Full time',
     groupsView: 'Groups', rankingView: 'World ranking',
     teamsExplain: 'FIFA world ranking (as of April 2026) — guidance for everyone who "just wants to tip".',
     favSource: 'Source',
@@ -104,6 +114,24 @@ const dict = {
     confirmName: 'This player already exists. Is that you?',
   },
 };
+
+// German display names for all 48 teams (data keys stay English).
+const TEAM_DE = {
+  'Algeria': 'Algerien', 'Argentina': 'Argentinien', 'Australia': 'Australien',
+  'Austria': 'Österreich', 'Belgium': 'Belgien', 'Bosnia and Herzegovina': 'Bosnien-Herzegowina',
+  'Brazil': 'Brasilien', 'Canada': 'Kanada', 'Cape Verde': 'Kap Verde', 'Colombia': 'Kolumbien',
+  'Croatia': 'Kroatien', 'Czech Republic': 'Tschechien', 'DR Congo': 'DR Kongo', 'Egypt': 'Ägypten',
+  'France': 'Frankreich', 'Germany': 'Deutschland', 'Iraq': 'Irak', 'Ivory Coast': 'Elfenbeinküste',
+  'Jordan': 'Jordanien', 'Mexico': 'Mexiko', 'Morocco': 'Marokko', 'Netherlands': 'Niederlande',
+  'New Zealand': 'Neuseeland', 'Norway': 'Norwegen', 'Qatar': 'Katar', 'Saudi Arabia': 'Saudi-Arabien',
+  'Scotland': 'Schottland', 'South Africa': 'Südafrika', 'South Korea': 'Südkorea', 'Spain': 'Spanien',
+  'Sweden': 'Schweden', 'Switzerland': 'Schweiz', 'Tunisia': 'Tunesien', 'Turkey': 'Türkei',
+  'United States': 'USA',
+};
+
+export function teamName(name) {
+  return lang === 'de' ? (TEAM_DE[name] || name) : name;
+}
 
 let lang = localStorage.getItem('wmtipp:lang') || 'de';
 

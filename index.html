@@ -6,20 +6,18 @@
   <meta name="theme-color" content="#0b1226" />
   <title>WM-Tippspiel 2026 🏆</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="header-inner">
-      <h1 id="app-title">🏆 WM-Tippspiel 2026</h1>
-      <div class="header-actions">
-        <button id="lang-toggle" class="chip-btn" title="Sprache / Language">DE</button>
-        <button id="player-chip" class="chip-btn player-chip" title="Spieler wechseln">⚽</button>
-      </div>
+    <div class="header-actions">
+      <button id="lang-toggle" class="chip-btn" title="Sprache / Language">DE</button>
+      <button id="player-chip" class="chip-btn player-chip" title="Spieler wechseln">⚽</button>
     </div>
+    <div class="header-trophy">🏆</div>
+    <h1 id="app-title" class="display">WM 2026 Tippspiel</h1>
+    <div class="sub">Familien-Edition · USA · Mexiko · Kanada</div>
+    <div class="info-chip" id="info-chip"></div>
   </header>
 
   <main id="view" class="view"></main>

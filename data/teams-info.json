@@ -5,53 +5,375 @@
     "odds": "Primary: Opta supercomputer pre-tournament simulation (25,000 sims), published 2026-06-01, https://theanalyst.com/articles/who-will-win-2026-fifa-world-cup-predictions-opta-supercomputer (additional Opta figures via https://www.thatsagoal.com/predictions/world-cup/opta-supercomputer-world-cup-2026-predictions and https://www.soccernews.com/world-cup-predictions-spain-look-to-dethrone-messis-argentina/399954/). Secondary: Ladbrokes outright winner odds for all 48 teams, 2026-05-12, https://www.bets.com.au/soccer/world-cup/fifa-world-cup-2026-winner-odds-20260512-0006/ — used as winProb (implied probability, 1/decimal*100) only where Opta did not publish a team's exact percentage; those entries have winProbSource 'bookmaker-implied'. Note: bookmaker implied probabilities include overround (~118% market total), Opta percentages sum to ~100%."
   },
   "teams": {
-    "Spain": { "fifaRank": 2, "winProb": 16.1, "winProbSource": "opta", "oddsLabel": "6.00 (Ladbrokes)", "tier": "favorite" },
-    "France": { "fifaRank": 1, "winProb": 13.0, "winProbSource": "opta", "oddsLabel": "5.50 (Ladbrokes)", "tier": "favorite" },
-    "England": { "fifaRank": 4, "winProb": 11.2, "winProbSource": "opta", "oddsLabel": "7.50 (Ladbrokes)", "tier": "favorite" },
-    "Argentina": { "fifaRank": 3, "winProb": 10.4, "winProbSource": "opta", "oddsLabel": "9.00 (Ladbrokes)", "tier": "favorite" },
-    "Portugal": { "fifaRank": 5, "winProb": 7.0, "winProbSource": "opta", "oddsLabel": "11.00 (Ladbrokes)", "tier": "favorite" },
-    "Brazil": { "fifaRank": 6, "winProb": 6.6, "winProbSource": "opta", "oddsLabel": "9.00 (Ladbrokes)", "tier": "favorite" },
-    "Germany": { "fifaRank": 10, "winProb": 5.1, "winProbSource": "opta", "oddsLabel": "15.00 (Ladbrokes)", "tier": "contender" },
-    "Netherlands": { "fifaRank": 7, "winProb": 3.6, "winProbSource": "opta", "oddsLabel": "21.00 (Ladbrokes)", "tier": "contender" },
-    "Norway": { "fifaRank": 31, "winProb": 3.5, "winProbSource": "opta", "oddsLabel": "26.00 (Ladbrokes)", "tier": "contender" },
-    "Belgium": { "fifaRank": 9, "winProb": 2.4, "winProbSource": "opta", "oddsLabel": "34.00 (Ladbrokes)", "tier": "contender" },
-    "Colombia": { "fifaRank": 13, "winProb": 2.1, "winProbSource": "opta", "oddsLabel": "41.00 (Ladbrokes)", "tier": "contender" },
-    "Uruguay": { "fifaRank": 17, "winProb": 2.0, "winProbSource": "bookmaker-implied", "oddsLabel": "51.00 (Ladbrokes)", "tier": "contender", "notes": "No exact Opta percentage published; Opta article places Uruguay close to USA's 1.2%." },
-    "Morocco": { "fifaRank": 8, "winProb": 1.9, "winProbSource": "opta", "oddsLabel": "41.00 (Ladbrokes)", "tier": "contender" },
-    "Croatia": { "fifaRank": 11, "winProb": 1.6, "winProbSource": "opta", "oddsLabel": "67.00 (Ladbrokes)", "tier": "contender" },
-    "Switzerland": { "fifaRank": 19, "winProb": 1.5, "winProbSource": "bookmaker-implied", "oddsLabel": "67.00 (Ladbrokes)", "tier": "contender", "notes": "No exact Opta percentage published; Opta article places Switzerland close to USA's 1.2%." },
-    "Ecuador": { "fifaRank": 23, "winProb": 1.4, "winProbSource": "opta", "oddsLabel": "67.00 (Ladbrokes)", "tier": "contender" },
-    "United States": { "fifaRank": 16, "winProb": 1.2, "winProbSource": "opta", "oddsLabel": "41.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Co-host. Most fancied of the three hosts per Opta." },
-    "Japan": { "fifaRank": 18, "winProb": 1.2, "winProbSource": "opta", "oddsLabel": "51.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Opta ranks Japan 17th overall, highest AFC side." },
-    "Mexico": { "fifaRank": 15, "winProb": 1.0, "winProbSource": "opta", "oddsLabel": "67.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Co-host. Plays opening match at Estadio Azteca." },
-    "Senegal": { "fifaRank": 14, "winProb": 1.0, "winProbSource": "opta", "oddsLabel": "67.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Opta article states Senegal level with Mexico at 1.0%." },
-    "Sweden": { "fifaRank": 38, "winProb": 1.5, "winProbSource": "bookmaker-implied", "oddsLabel": "67.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published." },
-    "Turkey": { "fifaRank": 22, "winProb": 1.5, "winProbSource": "bookmaker-implied", "oddsLabel": "67.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published." },
-    "Austria": { "fifaRank": 24, "winProb": 0.5, "winProbSource": "opta", "oddsLabel": "101.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Opta article: joint 22nd-likeliest winner, level with Canada and Paraguay (0.5%)." },
-    "Canada": { "fifaRank": 30, "winProb": 0.5, "winProbSource": "opta", "oddsLabel": "101.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Co-host. Opta: joint 22nd, level with Paraguay and Austria." },
-    "Paraguay": { "fifaRank": 40, "winProb": 0.5, "winProbSource": "opta", "oddsLabel": "151.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Opta article: joint 22nd, level with Canada and Austria (0.5%)." },
-    "Egypt": { "fifaRank": 29, "winProb": 0.4, "winProbSource": "opta", "oddsLabel": "201.00 (Ladbrokes)", "tier": "dark-horse", "notes": "Salah's final World Cup; Opta rates Egypt among biggest bottom-half threats." },
-    "South Korea": { "fifaRank": 25, "winProb": 0.5, "winProbSource": "bookmaker-implied", "oddsLabel": "201.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published." },
-    "Czech Republic": { "fifaRank": 41, "winProb": 0.7, "winProbSource": "bookmaker-implied", "oddsLabel": "151.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published. FIFA lists as Czechia." },
-    "Algeria": { "fifaRank": 28, "winProb": 0.7, "winProbSource": "bookmaker-implied", "oddsLabel": "151.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published." },
-    "Ivory Coast": { "fifaRank": 34, "winProb": 0.7, "winProbSource": "bookmaker-implied", "oddsLabel": "151.00 (Ladbrokes)", "tier": "dark-horse", "notes": "No exact Opta percentage published." },
-    "Australia": { "fifaRank": 27, "winProb": 0.3, "winProbSource": "opta", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "Won 28 of 25,000 Opta sims; 59.2% chance of reaching knockouts." },
-    "Scotland": { "fifaRank": 43, "winProb": 0.2, "winProbSource": "opta", "oddsLabel": "251.00 (Ladbrokes)", "tier": "outsider", "notes": "Won 22 of 25,000 Opta sims; 66.1% chance of exiting group stage successfully." },
-    "Ghana": { "fifaRank": 74, "winProb": 0.4, "winProbSource": "bookmaker-implied", "oddsLabel": "251.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published." },
-    "Bosnia and Herzegovina": { "fifaRank": 65, "winProb": 0.4, "winProbSource": "bookmaker-implied", "oddsLabel": "251.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published. Qualified via UEFA play-off (beat Italy on penalties)." },
-    "Iran": { "fifaRank": 21, "winProb": 0.2, "winProbSource": "bookmaker-implied", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published. FIFA rank (21) far exceeds market rating." },
-    "Tunisia": { "fifaRank": 44, "winProb": 0.2, "winProbSource": "bookmaker-implied", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published." },
-    "South Africa": { "fifaRank": 60, "winProb": 0.1, "winProbSource": "opta", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "Opta: joint 37th-likeliest winner but 49.3% chance of reaching knockouts." },
-    "New Zealand": { "fifaRank": 85, "winProb": 0.2, "winProbSource": "bookmaker-implied", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published. Lowest-ranked team in the field; 47.8% chance of escaping Group G per Opta." },
-    "Uzbekistan": { "fifaRank": 50, "winProb": 0.1, "winProbSource": "opta", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "Debutant. 41.4% chance of reaching knockouts per Opta." },
-    "Cape Verde": { "fifaRank": 69, "winProb": 0.2, "winProbSource": "bookmaker-implied", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "Debutant. No exact Opta win percentage published; reached knockouts in only 33.9% of Opta sims." },
-    "Panama": { "fifaRank": 33, "winProb": 0.2, "winProbSource": "bookmaker-implied", "oddsLabel": "501.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published." },
-    "Qatar": { "fifaRank": 55, "winProb": 0.1, "winProbSource": "bookmaker-implied", "oddsLabel": "751.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published." },
-    "Saudi Arabia": { "fifaRank": 61, "winProb": 0.1, "winProbSource": "bookmaker-implied", "oddsLabel": "751.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published." },
-    "DR Congo": { "fifaRank": 46, "winProb": 0.1, "winProbSource": "bookmaker-implied", "oddsLabel": "751.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published. Qualified via inter-confederation play-off." },
-    "Jordan": { "fifaRank": 63, "winProb": 0.1, "winProbSource": "opta", "oddsLabel": "1001.00 (Ladbrokes)", "tier": "outsider", "notes": "Debutant. 40.8% chance of reaching knockouts per Opta." },
-    "Iraq": { "fifaRank": 57, "winProb": 0.1, "winProbSource": "bookmaker-implied", "oddsLabel": "1001.00 (Ladbrokes)", "tier": "outsider", "notes": "No exact Opta percentage published. First World Cup since 1986." },
-    "Haiti": { "fifaRank": 83, "winProb": 0.0, "winProbSource": "opta", "oddsLabel": "1001.00 (Ladbrokes)", "tier": "outsider", "notes": "Won 1 of 25,000 Opta sims (0.004%); rated weakest team in the field. First World Cup since 1974." },
-    "Curacao": { "fifaRank": 82, "winProb": 0.0, "winProbSource": "opta", "oddsLabel": "1001.00 (Ladbrokes)", "tier": "outsider", "notes": "Debutant, smallest nation ever at a World Cup. Won 0 of 25,000 Opta sims; only team never to win in any simulation." }
+    "Spain": {
+      "fifaRank": 2,
+      "winProb": 16.1,
+      "winProbSource": "opta",
+      "oddsLabel": "6.00 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "France": {
+      "fifaRank": 1,
+      "winProb": 13,
+      "winProbSource": "opta",
+      "oddsLabel": "5.50 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "England": {
+      "fifaRank": 4,
+      "winProb": 11.2,
+      "winProbSource": "opta",
+      "oddsLabel": "7.50 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "Argentina": {
+      "fifaRank": 3,
+      "winProb": 10.4,
+      "winProbSource": "opta",
+      "oddsLabel": "9.00 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "Portugal": {
+      "fifaRank": 5,
+      "winProb": 7,
+      "winProbSource": "opta",
+      "oddsLabel": "11.00 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "Brazil": {
+      "fifaRank": 6,
+      "winProb": 6.6,
+      "winProbSource": "opta",
+      "oddsLabel": "9.00 (Ladbrokes)",
+      "tier": "favorite"
+    },
+    "Germany": {
+      "fifaRank": 10,
+      "winProb": 5.1,
+      "winProbSource": "opta",
+      "oddsLabel": "15.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Netherlands": {
+      "fifaRank": 7,
+      "winProb": 3.6,
+      "winProbSource": "opta",
+      "oddsLabel": "21.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Norway": {
+      "fifaRank": 31,
+      "winProb": 3.5,
+      "winProbSource": "opta",
+      "oddsLabel": "26.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Belgium": {
+      "fifaRank": 9,
+      "winProb": 2.4,
+      "winProbSource": "opta",
+      "oddsLabel": "34.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Colombia": {
+      "fifaRank": 13,
+      "winProb": 2.1,
+      "winProbSource": "opta",
+      "oddsLabel": "41.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Uruguay": {
+      "fifaRank": 17,
+      "winProb": 2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "51.00 (Ladbrokes)",
+      "tier": "contender",
+      "notes": "No exact Opta percentage published; Opta article places Uruguay close to USA's 1.2%."
+    },
+    "Morocco": {
+      "fifaRank": 8,
+      "winProb": 1.9,
+      "winProbSource": "opta",
+      "oddsLabel": "41.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Croatia": {
+      "fifaRank": 11,
+      "winProb": 1.6,
+      "winProbSource": "opta",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "Switzerland": {
+      "fifaRank": 19,
+      "winProb": 1.5,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "contender",
+      "notes": "No exact Opta percentage published; Opta article places Switzerland close to USA's 1.2%."
+    },
+    "Ecuador": {
+      "fifaRank": 23,
+      "winProb": 1.4,
+      "winProbSource": "opta",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "contender"
+    },
+    "United States": {
+      "fifaRank": 16,
+      "winProb": 1.2,
+      "winProbSource": "opta",
+      "oddsLabel": "41.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Co-host. Most fancied of the three hosts per Opta."
+    },
+    "Japan": {
+      "fifaRank": 18,
+      "winProb": 1.2,
+      "winProbSource": "opta",
+      "oddsLabel": "51.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Opta ranks Japan 17th overall, highest AFC side."
+    },
+    "Mexico": {
+      "fifaRank": 15,
+      "winProb": 1,
+      "winProbSource": "opta",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Co-host. Plays opening match at Estadio Azteca."
+    },
+    "Senegal": {
+      "fifaRank": 14,
+      "winProb": 1,
+      "winProbSource": "opta",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Opta article states Senegal level with Mexico at 1.0%."
+    },
+    "Sweden": {
+      "fifaRank": 38,
+      "winProb": 1.5,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published."
+    },
+    "Turkey": {
+      "fifaRank": 22,
+      "winProb": 1.5,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "67.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published."
+    },
+    "Austria": {
+      "fifaRank": 24,
+      "winProb": 0.5,
+      "winProbSource": "opta",
+      "oddsLabel": "101.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Opta article: joint 22nd-likeliest winner, level with Canada and Paraguay (0.5%)."
+    },
+    "Canada": {
+      "fifaRank": 30,
+      "winProb": 0.5,
+      "winProbSource": "opta",
+      "oddsLabel": "101.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Co-host. Opta: joint 22nd, level with Paraguay and Austria."
+    },
+    "Paraguay": {
+      "fifaRank": 40,
+      "winProb": 0.5,
+      "winProbSource": "opta",
+      "oddsLabel": "151.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Opta article: joint 22nd, level with Canada and Austria (0.5%)."
+    },
+    "Egypt": {
+      "fifaRank": 29,
+      "winProb": 0.4,
+      "winProbSource": "opta",
+      "oddsLabel": "201.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "Salah's final World Cup; Opta rates Egypt among biggest bottom-half threats."
+    },
+    "South Korea": {
+      "fifaRank": 25,
+      "winProb": 0.5,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "201.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published."
+    },
+    "Czech Republic": {
+      "fifaRank": 41,
+      "winProb": 0.7,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "151.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published. FIFA lists as Czechia."
+    },
+    "Algeria": {
+      "fifaRank": 28,
+      "winProb": 0.7,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "151.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published."
+    },
+    "Ivory Coast": {
+      "fifaRank": 34,
+      "winProb": 0.7,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "151.00 (Ladbrokes)",
+      "tier": "dark-horse",
+      "notes": "No exact Opta percentage published."
+    },
+    "Australia": {
+      "fifaRank": 27,
+      "winProb": 0.3,
+      "winProbSource": "opta",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Won 28 of 25,000 Opta sims; 59.2% chance of reaching knockouts."
+    },
+    "Scotland": {
+      "fifaRank": 43,
+      "winProb": 0.2,
+      "winProbSource": "opta",
+      "oddsLabel": "251.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Won 22 of 25,000 Opta sims; 66.1% chance of exiting group stage successfully."
+    },
+    "Ghana": {
+      "fifaRank": 74,
+      "winProb": 0.4,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "251.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published."
+    },
+    "Bosnia and Herzegovina": {
+      "fifaRank": 65,
+      "winProb": 0.4,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "251.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published. Qualified via UEFA play-off (beat Italy on penalties)."
+    },
+    "Iran": {
+      "fifaRank": 21,
+      "winProb": 0.2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published. FIFA rank (21) far exceeds market rating."
+    },
+    "Tunisia": {
+      "fifaRank": 44,
+      "winProb": 0.2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published."
+    },
+    "South Africa": {
+      "fifaRank": 60,
+      "winProb": 0.1,
+      "winProbSource": "opta",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Opta: joint 37th-likeliest winner but 49.3% chance of reaching knockouts."
+    },
+    "New Zealand": {
+      "fifaRank": 85,
+      "winProb": 0.2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published. Lowest-ranked team in the field; 47.8% chance of escaping Group G per Opta."
+    },
+    "Uzbekistan": {
+      "fifaRank": 50,
+      "winProb": 0.1,
+      "winProbSource": "opta",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Debutant. 41.4% chance of reaching knockouts per Opta."
+    },
+    "Cape Verde": {
+      "fifaRank": 69,
+      "winProb": 0.2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Debutant. No exact Opta win percentage published; reached knockouts in only 33.9% of Opta sims."
+    },
+    "Panama": {
+      "fifaRank": 33,
+      "winProb": 0.2,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "501.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published."
+    },
+    "Qatar": {
+      "fifaRank": 55,
+      "winProb": 0.1,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "751.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published."
+    },
+    "Saudi Arabia": {
+      "fifaRank": 61,
+      "winProb": 0.1,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "751.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published."
+    },
+    "DR Congo": {
+      "fifaRank": 46,
+      "winProb": 0.1,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "751.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published. Qualified via inter-confederation play-off."
+    },
+    "Jordan": {
+      "fifaRank": 63,
+      "winProb": 0.1,
+      "winProbSource": "opta",
+      "oddsLabel": "1001.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Debutant. 40.8% chance of reaching knockouts per Opta."
+    },
+    "Iraq": {
+      "fifaRank": 57,
+      "winProb": 0.1,
+      "winProbSource": "bookmaker-implied",
+      "oddsLabel": "1001.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "No exact Opta percentage published. First World Cup since 1986."
+    },
+    "Haiti": {
+      "fifaRank": 83,
+      "winProb": 0,
+      "winProbSource": "opta",
+      "oddsLabel": "1001.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Won 1 of 25,000 Opta sims (0.004%); rated weakest team in the field. First World Cup since 1974."
+    },
+    "Curaçao": {
+      "fifaRank": 82,
+      "winProb": 0,
+      "winProbSource": "opta",
+      "oddsLabel": "1001.00 (Ladbrokes)",
+      "tier": "outsider",
+      "notes": "Debutant, smallest nation ever at a World Cup. Won 0 of 25,000 Opta sims; only team never to win in any simulation."
+    }
   }
 }

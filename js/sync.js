@@ -10,7 +10,7 @@ const ALIASES = {
   'USA': 'United States', 'Korea Republic': 'South Korea', "Côte d'Ivoire": 'Ivory Coast',
   'Czechia': 'Czech Republic', 'Türkiye': 'Turkey', 'IR Iran': 'Iran',
   'Bosnia-Herzegovina': 'Bosnia and Herzegovina', 'Congo DR': 'DR Congo',
-  'Cabo Verde': 'Cape Verde', 'Curaçao': 'Curacao',
+  'Cabo Verde': 'Cape Verde',
 };
 const norm = (n) => ALIASES[n] || n;
 const pairKey = (a, b) => [a, b].sort().join('|');
