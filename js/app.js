@@ -167,7 +167,7 @@ function updateInfoChip() {
 
 function renderMatches() {
   const chips = [
-    ['today', t('today')], ['open', t('filterOpen')], ['all', t('all')], ['played', t('filterPlayed')], ['ko', t('knockout')],
+    ['today', t('today')], ['open', t('filterOpen')], ['all', t('all')], ['ko', t('knockout')],
   ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('')
   + `<select class="filter-chip group-select ${state.filter.startsWith('g:') ? 'active' : ''}" id="group-filter" aria-label="${t('group')}">
       <option value="">${t('group')} ▾</option>
