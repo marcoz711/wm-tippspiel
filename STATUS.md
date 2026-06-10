@@ -1,6 +1,13 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-09 ~23:30 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-10 ~08:50 (Berlin) — **LIVE & VERIFIED** ✅ (full redesign shipped)
+
+## Latest (2026-06-10 morning, per Marc via Discord)
+- **Complete visual redesign "Flutlicht"**: Unbounded display font, neon green/cyan gradients, glass cards, floating tab dock, hero card with ticking countdown, per-group badge colors, podium, movement arrows, confetti on point gains, tipped-count per match.
+- **Demo mode** `?demo=1`: clock shifted to matchday 2 (2026-06-13), device-local sandbox (`wmtipp:demo` localStorage key), seeded players Anna/Ben (PIN 0000). For Marc to try result entry/scoring safely.
+- **Stake rules**: 2 € per player, pot split 50/30/20 to top 3 (config `STAKE` in config.js), live pot display in Rangliste + Bonus rules.
+- **Sync priority REVERSED per Marc**: openfootball auto-results now overwrite manual entries (source is authoritative).
+- **Open commitment**: Thursday 2026-06-11 after the opening match (~23:00), run a real-system check (lock fired, auto result arrived, points correct) and report to Marc. Task `wmtipp-realcheck` on the MarcOS board.
 
 ## What this is
 Family betting game for the FIFA World Cup 2026 (June 11 – July 19). Static web app, no build step. Built by Neo 2026-06-09 on Marc's Discord request, same evening from idea to live.
