@@ -1,6 +1,7 @@
 import { createStore, api, mk } from './store.js';
 import { syncResults } from './sync.js';
 import { confetti } from './confetti.js';
+import { initAnalytics, track, identify } from './analytics.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang, teamName } from './i18n.js';
 import { SCORING, STAKE, TOURNAMENT_START_UTC } from './config.js';
@@ -450,6 +451,25 @@ function renderWorldRanking() {
     <p class="stat-legend">${t('favSource')}: ${esc(state.teamsInfo.sources?.ranking || '')}</p>`;
 }
 
+// — PWA install —
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  if (state.tab === 'bonus') render();
+});
+
+function renderInstallPanel() {
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone) return '';
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  let body;
+  if (installPrompt) body = `<button class="btn" id="install-btn" style="margin-top:10px">${t('installBtn')}</button>`;
+  else if (isIos) body = `<p style="margin-top:8px">${t('installIos')}</p>`;
+  else return '';
+  return `<div class="panel"><h2>📲 ${t('installTitle')}</h2><p>${t('installText')}</p>${body}</div>`;
+}
+
 // — bonus —
 function renderBonus() {
   const locked = tournamentStarted();
@@ -470,6 +490,7 @@ function renderBonus() {
       <p>${t('bonusExplain', { pts: SCORING.championBonus })}</p>
       ${pickUI}
     </div>
+    ${renderInstallPanel()}
     <div class="panel"><h2>📜 ${t('rules')}</h2><p>${t('rulesText', SCORING)}</p>
     <p style="margin-top:10px">💰 ${t('potLine', {
       fee: STAKE.fee, total: Object.keys(players()).length * STAKE.fee,
@@ -519,6 +540,9 @@ function showPlayerOverlay() {
     localStorage.setItem('wmtipp:pid', pid);
     $('#overlay').classList.add('hidden');
     render();
+    checkCelebration();
+    identify(pid, name);
+    track('player_created');
   };
 
   $$('.player-option').forEach((btn) => btn.onclick = () => {
@@ -542,6 +566,8 @@ function showPlayerOverlay() {
     $('#overlay').classList.add('hidden');
     render();
     checkCelebration(); // store the points baseline for this player
+    identify(pid, players()[pid]?.name);
+    track('player_login');
   }
 }
 
@@ -607,17 +633,27 @@ function bindView() {
       }
       state.resultOpen.delete(id);
       toast(t('saved'));
+      track('result_saved', { match: id });
       await api.setResult(state.store, id, result); // celebration toast may follow
     }
     state.resultOpen.delete(id);
     render();
   });
 
+  const ib = $('#install-btn');
+  if (ib) ib.onclick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    if (choice.outcome === 'accepted') { installPrompt = null; toast(t('installed')); render(); }
+  };
+
   const champSel = $('#champion-select');
   if (champSel) champSel.onchange = async () => {
     if (!state.pid) return;
     await api.setBonus(state.store, state.pid, { champion: champSel.value || null });
     toast(t('saved'));
+    track('bonus_saved', { champion: champSel.value });
   };
 }
 
@@ -630,6 +666,7 @@ async function saveTipFromInputs(mid) {
   if (Number.isInteger(h) && Number.isInteger(a) && h >= 0 && a >= 0) {
     await api.setTip(state.store, state.pid, mid, { h, a });
     toast(t('saved'));
+    track('tip_saved', { match: +mid, stage: m.stage });
   }
 }
 
@@ -666,6 +703,10 @@ function checkCelebration() {
 }
 
 async function main() {
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  if (!DEMO) initAnalytics();
   await Promise.all([loadFixtures(), loadTeamsInfo()]);
   state.store = await createStore({ forceLocal: DEMO, lsKey: DEMO ? 'wmtipp:demo' : undefined });
   let seeded = false;
