@@ -33,6 +33,7 @@ const state = {
   expanded: new Set(),
   resultOpen: new Set(),
   pendingRender: false,
+  overlayDismissed: false,
 };
 
 // ── helpers ─────────────────────────────────────────────────────────
@@ -535,6 +536,18 @@ function showPlayerOverlay() {
     </div>
   </div>`;
   $('#overlay').classList.remove('hidden');
+  state.overlayDismissed = false;
+
+  // Click on the backdrop (beside the card) or Escape closes the overlay —
+  // lets you browse / check who's playing without being forced to log in.
+  const closeOverlay = () => {
+    $('#overlay').classList.add('hidden');
+    state.overlayDismissed = true;
+    document.removeEventListener('keydown', onEsc);
+  };
+  function onEsc(e) { if (e.key === 'Escape') closeOverlay(); }
+  $('#overlay').onclick = (e) => { if (e.target === $('#overlay')) closeOverlay(); };
+  document.addEventListener('keydown', onEsc);
 
   $('#new-player-btn').onclick = () => { $('#new-player-form').classList.remove('hidden'); $('#pin-form').classList.add('hidden'); $('#np-name').focus(); };
   $$('.emoji-cell').forEach((c) => c.onclick = () => { $$('.emoji-cell').forEach((x) => x.classList.remove('selected')); c.classList.add('selected'); });
@@ -550,6 +563,7 @@ function showPlayerOverlay() {
     state.pid = pid;
     localStorage.setItem('wmtipp:pid', pid);
     $('#overlay').classList.add('hidden');
+    document.removeEventListener('keydown', onEsc);
     render();
     checkCelebration();
     identify(pid, name);
@@ -575,6 +589,7 @@ function showPlayerOverlay() {
     state.pid = pid;
     localStorage.setItem('wmtipp:pid', pid);
     $('#overlay').classList.add('hidden');
+    document.removeEventListener('keydown', onEsc);
     render();
     checkCelebration(); // store the points baseline for this player
     identify(pid, players()[pid]?.name);
@@ -726,7 +741,7 @@ async function main() {
     if (state.pid && !players()[state.pid]) { state.pid = null; localStorage.removeItem('wmtipp:pid'); }
     render();
     checkCelebration();
-    if (!state.pid) showPlayerOverlay();
+    if (!state.pid && !state.overlayDismissed) showPlayerOverlay();
   });
 
 
