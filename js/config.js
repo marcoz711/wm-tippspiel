@@ -12,6 +12,12 @@ export const SCORING = {
 // Entry fee per player (EUR) and pot split for the top 3.
 export const STAKE = { fee: 2, split: [0.5, 0.3, 0.2] };
 
+// Only these players see the manual "enter result" UI. Results otherwise
+// come from the openfootball auto-sync (js/sync.js + the daily GitHub Action).
+// Note: this hides the UI; it is not a hard server rule (RTDB allows any
+// authed write), but it stops accidental early result entry by family members.
+export const ADMIN_PIDS = ['marcus'];
+
 // PostHog (EU) — dedicated wm-tippspiel project (key from Marc, 2026-06-10).
 export const POSTHOG = {
   key: 'phc_r2Z2mRrWGa7wz9tgCF5drafJepHT6x34Qcq9XEZcSWC9',

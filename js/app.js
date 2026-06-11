@@ -4,7 +4,7 @@ import { confetti } from './confetti.js';
 import { initAnalytics, track, identify } from './analytics.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang, teamName } from './i18n.js';
-import { SCORING, STAKE, TOURNAMENT_START_UTC } from './config.js';
+import { SCORING, STAKE, TOURNAMENT_START_UTC, ADMIN_PIDS } from './config.js';
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -245,7 +245,7 @@ function renderMatchCard(m) {
     extra += `<div class="lockline">🔒 ${t('lockNote')}${total > 1 ? ` · 👥 ${t('tipped', { n, m: total })}` : ''}</div>`;
   }
   if (locked && expanded) extra += renderAllTips(m, result);
-  if (locked) {
+  if (locked && ADMIN_PIDS.includes(state.pid)) {
     const open = state.resultOpen.has(m.id);
     extra += `<div class="result-entry">
       <button class="result-entry-toggle" data-resopen="${m.id}">✏️ ${t('enterResult')}${m.stage !== 'group' ? ` (${t('result90')})` : ''}</button>

@@ -6,9 +6,9 @@ name: sync-results
 
 on:
   schedule:
-    # 06:00 UTC = 08:00 Berlin (CEST) — early morning, after all of the
+    # 05:00 UTC = 07:00 Berlin (CEST) — early morning, after all of the
     # previous day's matches have finished (latest US-night games end ~05:00 UTC).
-    - cron: '0 6 * * *'
+    - cron: '0 5 * * *'
   workflow_dispatch: {} # allow manual runs from the Actions tab
 
 # Avoid overlapping runs if a manual run coincides with the scheduled one.

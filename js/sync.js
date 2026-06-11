@@ -26,31 +26,42 @@ export async function syncResults(state, store) {
   const theirMatches = (data.matches || data.rounds?.flatMap((r) => r.matches) || []);
   if (!theirMatches.length) return { updated: 0, reason: 'no matches in source' };
 
-  // Verify whether their match numbering equals the official FIFA numbering
-  // by checking team pairs of group matches we know.
+  // Match openfootball entries to our fixtures.
+  // - Knockout: openfootball ships a reliable `num` for R32..SF that equals
+  //   our match id (validated against stage). Third place + Final carry no
+  //   num, but each is the only match in its stage, so they map by round.
+  // - Group: openfootball has no `num` for group games — match by team pair.
   const oursById = new Map(state.matches.map((m) => [m.id, m]));
-  let numChecked = 0, numAgree = 0;
-  for (const tm of theirMatches) {
-    const t1 = norm(tm.team1?.name || tm.team1), t2 = norm(tm.team2?.name || tm.team2);
-    if (!tm.num || !t1 || !t2 || !state.teams[t1] || !state.teams[t2]) continue;
-    const ours = oursById.get(tm.num);
-    if (!ours || !state.teams[ours.home]) continue;
-    numChecked++;
-    if (pairKey(ours.home, ours.away) === pairKey(t1, t2)) numAgree++;
-  }
-  const trustNum = numChecked >= 10 && numAgree / numChecked > 0.95;
-
+  const R2S = {
+    'Round of 32': 'r32', 'Round of 16': 'r16', 'Quarter-final': 'qf',
+    'Semi-final': 'sf', 'Match for third place': 'third', 'Final': 'final',
+  };
+  const onlyInStage = (stage) => {
+    const ms = state.matches.filter((m) => m.stage === stage);
+    return ms.length === 1 ? ms[0] : null;
+  };
   const byPair = new Map();
   for (const m of state.matches) {
     if (state.teams[m.home] && state.teams[m.away]) byPair.set(pairKey(m.home, m.away), m);
   }
+  const resolve = (tm, t1, t2) => {
+    const expStage = R2S[tm.round];
+    if (expStage) {
+      if (tm.num) {
+        const o = oursById.get(tm.num);
+        if (o && o.stage === expStage) return o;
+      }
+      return onlyInStage(expStage); // Third place / Final (no num)
+    }
+    if (t1 && t2 && state.teams[t1] && state.teams[t2]) return byPair.get(pairKey(t1, t2));
+    return null;
+  };
 
   let updated = 0;
   for (const tm of theirMatches) {
     const t1 = norm(tm.team1?.name || tm.team1), t2 = norm(tm.team2?.name || tm.team2);
     const score = tm.score?.ft;
-    let ours = trustNum && tm.num ? oursById.get(tm.num) : null;
-    if (!ours && t1 && t2 && state.teams[t1] && state.teams[t2]) ours = byPair.get(pairKey(t1, t2));
+    const ours = resolve(tm, t1, t2);
     if (!ours) continue;
 
     // Resolve knockout placeholders once real teams are known.
@@ -77,5 +88,5 @@ export async function syncResults(state, store) {
       }
     }
   }
-  return { updated, trustNum, numChecked };
+  return { updated };
 }
