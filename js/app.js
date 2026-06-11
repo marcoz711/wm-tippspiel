@@ -4,7 +4,7 @@ import { confetti } from './confetti.js';
 import { initAnalytics, track, identify } from './analytics.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang, teamName } from './i18n.js';
-import { SCORING, STAKE, TOURNAMENT_START_UTC, ADMIN_PIDS } from './config.js';
+import { SCORING, STAKE, TOURNAMENT_START_UTC, ADMIN_PIDS, PAID_PIDS } from './config.js';
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -488,28 +488,48 @@ function renderBonus() {
   if (locked) {
     const rows = Object.entries(players()).map(([pid, p]) => {
       const pick = state.db.bonus?.[pid]?.champion;
-      return `<div class="tip-row-line"><span class="who"><span>${p.emoji}</span> ${esc(p.name)}</span>
+      const paid = PAID_PIDS.includes(pid) ? ` <span class="paid-badge" title="${t('paid')}">✓</span>` : '';
+      return `<div class="tip-row-line"><span class="who"><span>${p.emoji}</span> ${esc(p.name)}${paid}</span>
         <span class="tipval">${pick ? `${flagImg(flagOf(pick), 'flag-inline')} ${esc(teamName(pick))}` : `<span class="no-tip">${t('noTip')}</span>`}</span></div>`;
     }).join('');
-    pickUI = `<p>${t('bonusLocked')}</p><div class="all-tips">${rows}</div>`;
+    pickUI = `<p>${t('bonusLocked')}</p><div class="all-tips champ-list">${rows}</div>`;
   } else {
     pickUI = `<select class="select" id="champion-select">${teamOptions(myPick)}</select>`;
   }
+  const adminSync = ADMIN_PIDS.includes(state.pid)
+    ? `<button class="btn secondary" id="admin-sync-btn" style="width:100%;margin-top:10px">🔄 ${t('syncNow')}</button>` : '';
+  const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
+  const total = Object.keys(players()).length * STAKE.fee;
+  const rule = (label, pts) => `<li><span class="rlabel">${label}</span><span class="rpts">${pts} ${t('pts')}</span></li>`;
+  const ex = (tip, pts, note) => `<li><span class="rlabel">${t('yourTip')} <b>${tip}</b></span><span class="rpts">${pts} ${t('pts')} · ${note}</span></li>`;
   return `<div class="panel">
       <h2>⭐ ${t('bonusTitle')}</h2>
       <p>${t('bonusExplain', { pts: SCORING.championBonus })}</p>
       ${pickUI}
+      ${adminSync}
     </div>
     ${renderInstallPanel()}
-    <div class="panel"><h2>📜 ${t('rules')}</h2><p>${t('rulesText', SCORING)}</p>
-    ${(() => {
-      const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
-      const total = Object.keys(players()).length * STAKE.fee;
-      return `<p style="margin-top:10px">💰 ${t('potLine', {
+    <div class="panel"><h2>📜 ${t('rules')}</h2>
+      <div class="rsub">${t('rScore')}</div>
+      <ul class="rules-list">
+        ${rule(t('rExact'), SCORING.exact)}
+        ${rule(t('rDiff'), SCORING.diff)}
+        ${rule(t('rTend'), SCORING.tendency)}
+        ${rule('⭐ ' + t('rChamp'), SCORING.championBonus)}
+      </ul>
+      <div class="rsub">${t('rExTitle')}</div>
+      <ul class="rules-list">
+        ${ex('2:1', SCORING.exact, t('rExExact'))}
+        ${ex('1:0', SCORING.diff, t('rExDiff'))}
+        ${ex('3:0', SCORING.tendency, t('rExTend'))}
+        ${ex('1:1', 0, '–')}
+      </ul>
+      <p class="rules-note">${t('rNote')}</p>
+      <p style="margin-top:10px">💰 ${t('potLine', {
         fee: STAKE.fee, total: fmt(total),
         p1: fmt(total * STAKE.split[0]), p2: fmt(total * STAKE.split[1]), p3: fmt(total * STAKE.split[2]),
-      })}</p>`;
-    })()}</div>`;
+      })}</p>
+    </div>`;
 }
 
 // ── player onboarding ───────────────────────────────────────────────
@@ -680,6 +700,20 @@ function bindView() {
     toast(t('saved'));
     track('bonus_saved', { champion: sel.value });
   });
+
+  const syncBtn = $('#admin-sync-btn');
+  if (syncBtn) syncBtn.onclick = async () => {
+    if (!ADMIN_PIDS.includes(state.pid)) return;
+    const orig = syncBtn.textContent;
+    syncBtn.disabled = true; syncBtn.textContent = t('syncing');
+    try {
+      const r = await syncResults(state, state.store);
+      toast(t('syncDone', { n: r.updated || 0 }));
+      track('admin_sync', { updated: r.updated || 0 });
+    } catch (e) { toast('Sync: ' + (e?.message || 'error')); }
+    syncBtn.disabled = false; syncBtn.textContent = orig;
+    render();
+  };
 }
 
 async function saveTipFromInputs(mid) {

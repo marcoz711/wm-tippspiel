@@ -166,6 +166,17 @@ body {
 .tip-row-line .who { display: flex; align-items: center; gap: 6px; font-weight: 700; }
 .tip-row-line .tipval { display: flex; gap: 8px; align-items: center; font-weight: 800; }
 .tip-row-line .tipval .no-tip { color: var(--muted); font-weight: 500; font-style: italic; }
+/* Champion list (Bonus tab): two left-aligned columns. */
+.champ-list .tip-row-line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.champ-list .tip-row-line .tipval { justify-content: flex-start; }
+.paid-badge { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #2e7d32; color: #fff; font-size: 11px; font-weight: 900; line-height: 1; }
+/* Rules list + examples */
+.rsub { font-weight: 800; font-size: 13px; margin: 12px 0 4px; }
+.rules-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rules-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; border-bottom: 1px dashed var(--dash); padding-bottom: 3px; }
+.rules-list .rlabel { font-weight: 600; }
+.rules-list .rpts { font-weight: 800; white-space: nowrap; }
+.rules-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
 
 /* result entry */
 .result-entry { margin-top: 10px; border-top: 2px dashed var(--dash); padding-top: 8px; text-align: center; }
