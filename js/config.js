@@ -20,7 +20,7 @@ export const ADMIN_PIDS = ['marcus'];
 
 // Players who have paid into the pot — shown with a ✓ on the Bonus screen.
 // Update as more people pay (then redeploy).
-export const PAID_PIDS = ['marcus', 'oma', 'uta', 'karsten'];
+export const PAID_PIDS = ['marcus', 'oma', 'uta', 'karsten', 'cowboy', 'c-o'];
 
 // PostHog (EU) — dedicated wm-tippspiel project (key from Marc, 2026-06-10).
 export const POSTHOG = {
