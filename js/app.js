@@ -389,12 +389,20 @@ function renderTable() {
   }).join('');
   const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
   const total = rows.length * STAKE.fee;
-  const potPanel = `<div class="panel pot-panel"><p>💰 ${t('potLine', {
-    fee: STAKE.fee, total: fmt(total),
-    p1: fmt(total * STAKE.split[0]), p2: fmt(total * STAKE.split[1]), p3: fmt(total * STAKE.split[2]),
-  })}</p></div>`;
-  return `${dwPanel}${renderPodium(rows)}<div class="lb-card">${html}</div>
-    ${potPanel}<p class="stat-legend">${t('rulesText', SCORING)}</p>`;
+  const potPanel = `<div class="panel pot-panel">
+    <div class="rsub">💰 ${t('pot')}</div>
+    <ul class="rules-list">
+      <li><span class="rlabel">${t('entry')}</span><span class="rpts">${STAKE.fee} €</span></li>
+      <li><span class="rlabel">${t('potNow')}</span><span class="rpts">${fmt(total)} €</span></li>
+    </ul>
+    <div class="rsub">${t('payout')}</div>
+    <ul class="rules-list">
+      <li><span class="rlabel">${t('place1')}</span><span class="rpts">${fmt(total * STAKE.split[0])} €</span></li>
+      <li><span class="rlabel">${t('place2')}</span><span class="rpts">${fmt(total * STAKE.split[1])} €</span></li>
+      <li><span class="rlabel">${t('place3')}</span><span class="rpts">${fmt(total * STAKE.split[2])} €</span></li>
+    </ul>
+  </div>`;
+  return `${dwPanel}${renderPodium(rows)}<div class="lb-card">${html}</div>${potPanel}`;
 }
 
 // — teams (groups + world ranking) —
