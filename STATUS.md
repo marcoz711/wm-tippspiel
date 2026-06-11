@@ -1,10 +1,24 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-11 ~21:00 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-11 ~22:00 (Berlin) — **LIVE & VERIFIED** ✅ (busy live-tuning session during the opening match)
 
 ## Latest (2026-06-11 evening, per Marc via Discord)
-- **Fixed float display on 3rd-place prize** (`ea961fe`): the Regeln pot line passed raw `STAKE.split` products to `potLine`, so `14 × 0.2` rendered as `2.80000000000000003 €`. Now uses the same `fmt()` rounding the leaderboard pot line already had → `2,8 €`.
-- **Player overlay: click backdrop / Esc to close without logging in** (`361c602`): tapping the area beside the card or pressing Escape dismisses the player-select overlay. New `state.overlayDismissed` flag stops `onData` from auto-reopening it; login stays reachable via the 👤 player chip or by tapping a tip input. Lets family check who's playing without re-login.
+- **3rd-place prize float fix** (`ea961fe`): Regeln pot line passed raw `STAKE.split` products → `14 × 0.2 = 2.80000000000000003 €`. Now uses the leaderboard's `fmt()` rounding → `2,8 €`.
+- **Overlay click-outside / Esc to close** (`361c602`): backdrop tap or Escape dismisses the player-select overlay (new `state.overlayDismissed` stops `onData` auto-reopen). Lets family check who's playing without re-login; login still via 👤 chip or tapping a tip input.
+- **Daily result-sync GitHub Action** (`a0574ec`, cron moved to 05:00 UTC / 07:00 Berlin in `9f208fd`): `scripts/sync-results.mjs` ports `js/sync.js` to a standalone job; pulls openfootball results into Firebase via anonymous auth (public apiKey, **no secrets**) so standings update without anyone opening the app. In-app 6h sync still runs. Manual run via Actions tab or the admin Sync button.
+- **Bosnia alias fix** (`a0574ec`): openfootball uses "Bosnia & Herzegovina" (ampersand); our key is "Bosnia and Herzegovina". Without the alias, Bosnia's 3 group games never auto-synced (client too). Group pairing now 72/72.
+- **KO auto-sync fixed** (`9f208fd`): openfootball ships a reliable `num` for R32..SF that equals our match `id` (validated against stage); Third place + Final have no num but are each the only match in their stage → mapped by round. Replaced the dead `trustNum` path (group games carry no num). Applied to both `js/sync.js` and the Action.
+- **Admin-only result entry** (`9f208fd`): manual "enter result" UI now gated to `ADMIN_PIDS` (`['marcus']`) — family can't enter results by accident. Auto-sync unaffected.
+- **Bonus screen** (`fa73297`): champion list countries left-aligned (2-col `.champ-list` grid); paid players (`PAID_PIDS = marcus/oma/uta/karsten`) get a green ✓ badge; rules rewritten as two lists (points per match + worked 2:1 examples) with new DE/EN i18n keys; admin-only manual Sync button on the Bonus tab.
+
+### Manual Firebase edits this session (admin overrides via REST anon-auth, per Marc — he's admin/owner)
+- `bonus/c-o = Argentina` (champion). Flagged: set ~30 min after the kickoff lock (no advantage, reversible).
+- `tips/vera/m1 = 2:1` (was 1:2). Marc override; technical audit found **no swap bug** — render/CSS/save are consistent, so the 1:2 was input-order user error.
+- `bonus/gewinner = Portugal` + `tips/gewinner/m1 = 2:1`.
+- Deleted `results/m1` (a player had entered 2:1 too early during the live match).
+
+### Known follow-up
+- Result auto-sync still relies on openfootball publishing (~daily). The opening-match real-check (`wmtipp-realcheck`) tonight verifies lock + auto-result + scoring end-to-end.
 
 ## Latest (2026-06-10 morning, per Marc via Discord)
 - **Design = Marc's mockup, adopted 1:1** ("retro pitch": striped green background, cream cards with 2px ink borders + hard offset shadows, gold accents, sticky gold day ribbons, trophy header with next-kickoff/open-tips chip, WR pills per team, ENDSTAND band, system fonts). Marc rejected my first "Flutlicht" dark/neon redesign and sent a JSX mockup — its CSS system is the reference (was `wm2026-tippspiel.jsx`, design tokens now in styles.css `:root`). Functionality stayed ours.
