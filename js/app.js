@@ -45,6 +45,12 @@ async function sha256(str) {
 const berlinFmtDate = () => new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { timeZone: 'Europe/Berlin', weekday: 'short', day: 'numeric', month: 'long' });
 const berlinFmtTime = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' });
 const berlinDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit' });
+// Day grouping follows the host-country (US/CA/MX) local day so a late-night
+// Berlin kickoff stays grouped with the evening it belongs to — otherwise
+// people see it under "tomorrow" and forget to tip. Kickoff TIME stays Berlin.
+const TOURN_TZ = 'America/Los_Angeles';
+const tournFmtDate = () => new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { timeZone: TOURN_TZ, weekday: 'short', day: 'numeric', month: 'long' });
+const tournDayKey = new Intl.DateTimeFormat('en-CA', { timeZone: TOURN_TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
 
 const kickoff = (m) => new Date(m.kickoffUTC);
 const isLocked = (m) => now() >= kickoff(m).getTime();
@@ -134,15 +140,15 @@ function render() {
 
 // — matches —
 function filteredMatches() {
-  const todayKey = berlinDayKey.format(new Date(now()));
+  const todayKey = tournDayKey.format(new Date(now()));
   if (state.filter === 'today') {
-    const todays = state.matches.filter((m) => berlinDayKey.format(kickoff(m)) === todayKey);
+    const todays = state.matches.filter((m) => tournDayKey.format(kickoff(m)) === todayKey);
     if (todays.length) return todays;
     // nothing today → next upcoming day
     const next = state.matches.find((m) => !isLocked(m));
     if (!next) return [];
-    const nextKey = berlinDayKey.format(kickoff(next));
-    return state.matches.filter((m) => berlinDayKey.format(kickoff(m)) === nextKey);
+    const nextKey = tournDayKey.format(kickoff(next));
+    return state.matches.filter((m) => tournDayKey.format(kickoff(m)) === nextKey);
   }
   if (state.filter === 'ko') return state.matches.filter((m) => m.stage !== 'group');
   if (state.filter === 'open') return state.matches.filter((m) => !isLocked(m));
@@ -197,7 +203,7 @@ function renderMatches() {
       html += `<div class="stage-header"><span class="display">${t('stages.' + m.stage)}</span></div>`;
     }
     lastStage = m.stage;
-    const day = berlinFmtDate().format(kickoff(m));
+    const day = tournFmtDate().format(kickoff(m));
     if (day !== lastDay) { html += `<div class="date-header"><span>${day}</span></div>`; lastDay = day; }
     html += renderMatchCard(m);
   }
