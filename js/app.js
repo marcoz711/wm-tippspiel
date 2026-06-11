@@ -501,12 +501,14 @@ function renderBonus() {
     </div>
     ${renderInstallPanel()}
     <div class="panel"><h2>📜 ${t('rules')}</h2><p>${t('rulesText', SCORING)}</p>
-    <p style="margin-top:10px">💰 ${t('potLine', {
-      fee: STAKE.fee, total: Object.keys(players()).length * STAKE.fee,
-      p1: Object.keys(players()).length * STAKE.fee * STAKE.split[0],
-      p2: Object.keys(players()).length * STAKE.fee * STAKE.split[1],
-      p3: Object.keys(players()).length * STAKE.fee * STAKE.split[2],
-    })}</p></div>`;
+    ${(() => {
+      const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
+      const total = Object.keys(players()).length * STAKE.fee;
+      return `<p style="margin-top:10px">💰 ${t('potLine', {
+        fee: STAKE.fee, total: fmt(total),
+        p1: fmt(total * STAKE.split[0]), p2: fmt(total * STAKE.split[1]), p3: fmt(total * STAKE.split[2]),
+      })}</p>`;
+    })()}</div>`;
 }
 
 // ── player onboarding ───────────────────────────────────────────────
