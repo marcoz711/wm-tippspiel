@@ -176,6 +176,7 @@ body {
 .rules-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; border-bottom: 1px dashed var(--dash); padding-bottom: 3px; }
 .rules-list .rlabel { font-weight: 600; }
 .rules-list .rpts { font-weight: 800; white-space: nowrap; }
+.rules-ex li { justify-content: flex-start; }
 .rules-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
 
 /* result entry */

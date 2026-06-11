@@ -501,7 +501,7 @@ function renderBonus() {
   const fmt = (x) => (Math.round(x * 100) / 100).toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-GB');
   const total = Object.keys(players()).length * STAKE.fee;
   const rule = (label, pts) => `<li><span class="rlabel">${label}</span><span class="rpts">${pts} ${t('pts')}</span></li>`;
-  const ex = (tip, pts, note) => `<li><span class="rlabel">${t('yourTip')} <b>${tip}</b></span><span class="rpts">${pts} ${t('pts')} · ${note}</span></li>`;
+  const ex = (tip, pts, note) => `<li><span class="rlabel">${t('yourTip')} <b>${tip}</b> → ${pts} ${t('pts')} · ${note}</span></li>`;
   return `<div class="panel">
       <h2>⭐ ${t('bonusTitle')}</h2>
       <p>${t('bonusExplain', { pts: SCORING.championBonus })}</p>
@@ -518,17 +518,24 @@ function renderBonus() {
         ${rule('⭐ ' + t('rChamp'), SCORING.championBonus)}
       </ul>
       <div class="rsub">${t('rExTitle')}</div>
-      <ul class="rules-list">
+      <ul class="rules-list rules-ex">
         ${ex('2:1', SCORING.exact, t('rExExact'))}
         ${ex('1:0', SCORING.diff, t('rExDiff'))}
         ${ex('3:0', SCORING.tendency, t('rExTend'))}
         ${ex('1:1', 0, '–')}
       </ul>
       <p class="rules-note">${t('rNote')}</p>
-      <p style="margin-top:10px">💰 ${t('potLine', {
-        fee: STAKE.fee, total: fmt(total),
-        p1: fmt(total * STAKE.split[0]), p2: fmt(total * STAKE.split[1]), p3: fmt(total * STAKE.split[2]),
-      })}</p>
+      <div class="rsub">💰 ${t('pot')}</div>
+      <ul class="rules-list">
+        <li><span class="rlabel">${t('entry')}</span><span class="rpts">${STAKE.fee} €</span></li>
+        <li><span class="rlabel">${t('potNow')}</span><span class="rpts">${fmt(total)} €</span></li>
+      </ul>
+      <div class="rsub">${t('payout')}</div>
+      <ul class="rules-list">
+        <li><span class="rlabel">${t('place1')}</span><span class="rpts">${fmt(total * STAKE.split[0])} €</span></li>
+        <li><span class="rlabel">${t('place2')}</span><span class="rpts">${fmt(total * STAKE.split[1])} €</span></li>
+        <li><span class="rlabel">${t('place3')}</span><span class="rpts">${fmt(total * STAKE.split[2])} €</span></li>
+      </ul>
     </div>`;
 }
 
