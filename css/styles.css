@@ -215,7 +215,8 @@ body {
 .podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin: 8px 0 14px; min-height: 0; }
 .podium-col { flex: 1; max-width: 110px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .podium-emoji { font-size: 30px; }
-.podium-name { font-size: 12px; font-weight: 800; word-break: break-word; }
+.podium-name { font-size: 13px; font-weight: 900; word-break: break-word; line-height: 1.15; color: #fff;
+  text-shadow: 1.5px 1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px -1.5px 0 var(--ink); }
 .podium-block {
   width: 100%; border: 2px solid var(--ink); border-radius: 12px 12px 6px 6px;
   box-shadow: var(--shadow-sm);
