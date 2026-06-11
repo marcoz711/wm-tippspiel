@@ -244,7 +244,8 @@ function renderMatchCard(m) {
     const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
     extra += `<div class="lockline">🔒 ${t('lockNote')}${total > 1 ? ` · 👥 ${t('tipped', { n, m: total })}` : ''}</div>`;
   }
-  if (locked && expanded) extra += renderAllTips(m, result);
+  // Live matches are always folded out so everyone sees all tips without a click.
+  if (locked && (expanded || live)) extra += renderAllTips(m, result);
   if (locked && ADMIN_PIDS.includes(state.pid)) {
     const open = state.resultOpen.has(m.id);
     extra += `<div class="result-entry">
