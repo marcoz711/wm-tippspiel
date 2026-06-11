@@ -1,0 +1,27 @@
+name: sync-results
+
+# Pulls finished match results from openfootball into Firebase once a day,
+# so standings update even when nobody has the app open. The in-app 6-hourly
+# sync still runs too; this is the reliability backstop.
+
+on:
+  schedule:
+    # 06:00 UTC = 08:00 Berlin (CEST) — early morning, after all of the
+    # previous day's matches have finished (latest US-night games end ~05:00 UTC).
+    - cron: '0 6 * * *'
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+# Avoid overlapping runs if a manual run coincides with the scheduled one.
+concurrency:
+  group: sync-results
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/sync-results.mjs
