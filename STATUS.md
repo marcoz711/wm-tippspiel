@@ -1,6 +1,10 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-10 ~08:50 (Berlin) — **LIVE & VERIFIED** ✅ (full redesign shipped)
+**Updated:** 2026-06-11 ~21:00 (Berlin) — **LIVE & VERIFIED** ✅
+
+## Latest (2026-06-11 evening, per Marc via Discord)
+- **Fixed float display on 3rd-place prize** (`ea961fe`): the Regeln pot line passed raw `STAKE.split` products to `potLine`, so `14 × 0.2` rendered as `2.80000000000000003 €`. Now uses the same `fmt()` rounding the leaderboard pot line already had → `2,8 €`.
+- **Player overlay: click backdrop / Esc to close without logging in** (`361c602`): tapping the area beside the card or pressing Escape dismisses the player-select overlay. New `state.overlayDismissed` flag stops `onData` from auto-reopening it; login stays reachable via the 👤 player chip or by tapping a tip input. Lets family check who's playing without re-login.
 
 ## Latest (2026-06-10 morning, per Marc via Discord)
 - **Design = Marc's mockup, adopted 1:1** ("retro pitch": striped green background, cream cards with 2px ink borders + hard offset shadows, gold accents, sticky gold day ribbons, trophy header with next-kickoff/open-tips chip, WR pills per team, ENDSTAND band, system fonts). Marc rejected my first "Flutlicht" dark/neon redesign and sent a JSX mockup — its CSS system is the reference (was `wm2026-tippspiel.jsx`, design tokens now in styles.css `:root`). Functionality stayed ours.
