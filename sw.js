@@ -1,7 +1,13 @@
-// Network-first service worker: the app always gets fresh code when
-// online (Vercel deploys propagate immediately); the cache only serves
-// as an offline fallback. Bump VERSION to drop old caches.
-const VERSION = 'wmtipp-v1';
+// Cache-first service worker.
+//
+// The app shell (HTML/CSS/JS/fixtures/icons) is served straight from cache, so
+// returning visitors generate ~0 edge requests on Vercel (the big driver of the
+// Edge Requests quota). Live game data (tips, results, players) comes from
+// Firebase, which is NOT intercepted here, so scores/standings stay real-time.
+//
+// IMPORTANT: because assets aren't content-hashed, new code ships only when
+// VERSION is bumped. Bump VERSION on every deploy that changes a shipped file.
+const VERSION = 'wmtipp-v2';
 const PRECACHE = [
   './',
   'index.html',
@@ -27,18 +33,22 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
-  // Never intercept Firebase/auth traffic.
+  // Only intercept same-origin assets + the Firebase SDK CDN. Firebase RTDB /
+  // auth traffic is never touched, so live data is unaffected.
   if (url.origin !== location.origin && !url.hostname.includes('jsdelivr.net')) return;
 
+  // Cache-first: hit the network only for assets we don't already have. New
+  // releases arrive via the VERSION bump (install re-precaches, activate purges).
   e.respondWith(
-    fetch(e.request)
-      .then((res) => {
+    caches.match(e.request, { ignoreSearch: true }).then((cached) => {
+      if (cached) return cached;
+      return fetch(e.request).then((res) => {
         if (res.ok) {
           const copy = res.clone();
           caches.open(VERSION).then((c) => c.put(e.request, copy));
         }
         return res;
-      })
-      .catch(() => caches.match(e.request, { ignoreSearch: url.origin === location.origin && url.pathname.endsWith('/') }))
+      }).catch(() => cached);
+    })
   );
 });
