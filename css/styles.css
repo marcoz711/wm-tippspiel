@@ -132,6 +132,9 @@ body {
 }
 
 .mid { display: flex; align-items: center; gap: 6px; }
+.mid-locked { flex-direction: column; gap: 2px; }
+.mid-cap { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.mid-row { display: flex; align-items: center; gap: 6px; }
 .vs, .score-sep { font-size: 13px; font-weight: 900; color: var(--muted); padding: 0 2px; }
 
 .score-stepper { display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -154,8 +157,9 @@ body {
 .scorebox.empty { color: #b9c7bf; }
 
 .lockline { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
-.resband { text-align: center; margin-top: 8px; }
-.resband .final { font-size: 12px; letter-spacing: 0.1em; color: var(--muted); font-weight: 800; }
+.resband { text-align: center; margin-top: 10px; }
+.resband .final { display: inline-block; font-size: 15px; letter-spacing: 0.06em; color: #fff; font-weight: 900;
+  background: var(--ink); border: 2px solid var(--ink); border-radius: 9px; padding: 3px 12px; }
 
 /* all-tips */
 .all-tips {

@@ -238,7 +238,10 @@ function renderMatchCard(m) {
     </div>`;
   } else {
     const box = (v) => `<div class="scorebox static ${v == null ? 'empty' : ''}">${v == null ? '–' : v}</div>`;
-    center = `<div class="mid">${box(myTip?.h)}<span class="vs">:</span>${box(myTip?.a)}</div>`;
+    center = `<div class="mid mid-locked">
+      <span class="mid-cap">${t('yourTip')}</span>
+      <div class="mid-row">${box(myTip?.h)}<span class="vs">:</span>${box(myTip?.a)}</div>
+    </div>`;
   }
 
   let extra = '';
