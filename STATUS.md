@@ -17,8 +17,14 @@
 - `bonus/gewinner = Portugal` + `tips/gewinner/m1 = 2:1`.
 - Deleted `results/m1` (a player had entered 2:1 too early during the live match).
 
+## 2026-06-12 (overnight, after opener)
+- **Results source switched to ESPN** (`4866532`): openfootball lagged ~a day (opener + match 2 were final for hours but still `score:null` in openfootball), so the sync/admin-button showed "0 updated". Now `js/sync.js` + `scripts/sync-results.mjs` use a two-pass design: **Pass 1 ESPN** (`site.api.espn.com/.../fifa.world/scoreboard?dates=YYYYMMDD-…`, free/no-key, near real-time) for group results matched by team pair + orientation alignment; **Pass 2 openfootball** for KO bracket resolution (num→id) + 90-min KO results + group fallback, best-effort. ESPN team names normalized via the same ALIASES (Czechia→Czech Republic etc.). Verified Mexico 2:0 / South Korea 2:1 resolve correctly.
+- Manually wrote results m1 (Mexico 2:0 South Africa) and m2 (South Korea 2:1 Czechia) via REST while openfootball was stale; ESPN sync is idempotent over them.
+- More live tip overrides per Marc (all flagged, match in progress): vera/gewinner m2 1:1; Juli m2 2:1 (SK), Palme m2 1:2 (Czech). PAID_PIDS extended: +cowboy, +c-o.
+- UI: podium top-3 names made legible (white + ink outline); match card now labels "DEIN TIPP" over the tip boxes + bold dark ENDSTAND pill for the result; live matches auto-expand all tips; matches grouped by US host-day so night kickoffs sit with the right evening.
+
 ### Known follow-up
-- Result auto-sync still relies on openfootball publishing (~daily). The opening-match real-check (`wmtipp-realcheck`) tonight verifies lock + auto-result + scoring end-to-end.
+- KO results via openfootball (90-min) are still ~daily-lagged; before the KO stage (~June 28) consider sourcing KO 90-min scores from ESPN too (needs the regulation-time score, not post-ET). The opening-match real-check (`wmtipp-realcheck`) covers group-stage end-to-end.
 
 ## Latest (2026-06-10 morning, per Marc via Discord)
 - **Design = Marc's mockup, adopted 1:1** ("retro pitch": striped green background, cream cards with 2px ink borders + hard offset shadows, gold accents, sticky gold day ribbons, trophy header with next-kickoff/open-tips chip, WR pills per team, ENDSTAND band, system fonts). Marc rejected my first "Flutlicht" dark/neon redesign and sent a JSX mockup — its CSS system is the reference (was `wm2026-tippspiel.jsx`, design tokens now in styles.css `:root`). Functionality stayed ours.
