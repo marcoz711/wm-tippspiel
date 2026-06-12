@@ -7,7 +7,7 @@
 //
 // IMPORTANT: because assets aren't content-hashed, new code ships only when
 // VERSION is bumped. Bump VERSION on every deploy that changes a shipped file.
-const VERSION = 'wmtipp-v2';
+const VERSION = 'wmtipp-v3';
 const PRECACHE = [
   './',
   'index.html',

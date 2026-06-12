@@ -170,6 +170,13 @@ body {
 .tip-row-line .who { display: flex; align-items: center; gap: 6px; font-weight: 700; }
 .tip-row-line .tipval { display: flex; gap: 8px; align-items: center; font-weight: 800; }
 .tip-row-line .tipval .no-tip { color: var(--muted); font-weight: 500; font-style: italic; }
+/* Future-match vote status (who tipped / who hasn't — no tips shown) */
+.lockline .caret { font-weight: 900; }
+.vote-status { display: flex; flex-direction: column; gap: 8px; }
+.vote-group .vote-head { font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+.vote-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.vote-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700;
+  background: #f1eddc; border: 1.5px solid var(--ink); border-radius: 999px; padding: 2px 8px; }
 /* Champion list (Bonus tab): two left-aligned columns. */
 .champ-list .tip-row-line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .champ-list .tip-row-line .tipval { justify-content: flex-start; }

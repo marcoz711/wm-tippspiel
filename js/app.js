@@ -251,7 +251,10 @@ function renderMatchCard(m) {
   if (!locked) {
     const total = Object.keys(players()).length;
     const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
-    extra += `<div class="lockline">🔒 ${t('lockNote')}${total > 1 ? ` · 👥 ${t('tipped', { n, m: total })}` : ''}</div>`;
+    const canExpand = total > 1;
+    // Future games: tap to fold out WHO has / hasn't tipped (no tips shown — those stay secret until kickoff).
+    extra += `<div class="lockline"${canExpand ? ` data-expand="${m.id}"` : ''}>🔒 ${t('lockNote')}${canExpand ? ` · 👥 ${t('tipped', { n, m: total })} <span class="caret">${expanded ? '▴' : '▾'}</span>` : ''}</div>`;
+    if (canExpand && expanded) extra += renderVoteStatus(m);
   }
   // Live matches are always folded out so everyone sees all tips without a click.
   if (locked && (expanded || live)) extra += renderAllTips(m, result);
@@ -298,6 +301,23 @@ function renderAllTips(m, result) {
     </div>`;
   }).join('');
   return `<div class="all-tips">${rows}</div>`;
+}
+
+// Future (unlocked) matches: who has / hasn't tipped — names only, NO tips
+// (those stay secret until kickoff).
+function renderVoteStatus(m) {
+  const entries = Object.entries(players());
+  const voted = entries.filter(([pid]) => getTip(pid, m.id));
+  const pending = entries.filter(([pid]) => !getTip(pid, m.id));
+  const chip = ([, p]) => `<span class="vote-chip"><span>${p.emoji}</span> ${esc(p.name)}</span>`;
+  const group = (label, list) => `<div class="vote-group">
+    <div class="vote-head">${label} (${list.length})</div>
+    <div class="vote-chips">${list.length ? list.map(chip).join('') : '–'}</div>
+  </div>`;
+  return `<div class="all-tips vote-status">
+    ${group('✅ ' + t('voted'), voted)}
+    ${group('⏳ ' + t('notVoted'), pending)}
+  </div>`;
 }
 
 function resultForm(m, result) {
@@ -571,12 +591,12 @@ function showPlayerOverlay() {
       <label class="form-label">${t('pickEmoji')}</label>
       <div class="emoji-grid">${EMOJIS.map((e, i) => `<div class="emoji-cell ${i === 0 ? 'selected' : ''}" data-emoji="${e}">${e}</div>`).join('')}</div>
       <label class="form-label">${t('pinLabel')}</label>
-      <input class="text-input" id="np-pin" type="password" inputmode="numeric" maxlength="8" placeholder="····" />
+      <input class="text-input" id="np-pin" type="password" inputmode="text" maxlength="20" placeholder="PIN" />
       <button class="btn" id="np-save" style="width:100%;margin-top:18px">${t('letsGo')}</button>
     </div>
     <div id="pin-form" class="hidden">
       <label class="form-label" id="pin-for"></label>
-      <input class="text-input" id="pin-entry" type="password" inputmode="numeric" maxlength="8" placeholder="····" />
+      <input class="text-input" id="pin-entry" type="password" inputmode="text" maxlength="20" placeholder="PIN" />
       <button class="btn" id="pin-ok" style="width:100%;margin-top:18px">OK</button>
     </div>
   </div>`;
