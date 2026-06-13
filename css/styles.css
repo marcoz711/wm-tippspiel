@@ -160,6 +160,8 @@ body {
 .resband { text-align: center; margin-top: 10px; }
 .resband .final { display: inline-block; font-size: 15px; letter-spacing: 0.06em; color: #fff; font-weight: 900;
   background: var(--ink); border: 2px solid var(--ink); border-radius: 9px; padding: 3px 12px; }
+.report-link { display: block; margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--ink);
+  text-decoration: underline; text-underline-offset: 2px; }
 
 /* all-tips */
 .all-tips {

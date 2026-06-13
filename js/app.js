@@ -246,7 +246,11 @@ function renderMatchCard(m) {
 
   let extra = '';
   if (locked && result) {
-    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span></div>`;
+    const espnId = /^\d+$/.test(String(result.espn)) ? String(result.espn) : null;
+    const report = espnId
+      ? `<a class="report-link" href="https://www.espn.com/soccer/match/_/gameId/${espnId}" target="_blank" rel="noopener noreferrer">📊 ${t('matchReport')}</a>`
+      : '';
+    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span>${report}</div>`;
   }
   if (!locked) {
     const total = Object.keys(players()).length;

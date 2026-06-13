@@ -51,7 +51,7 @@ export async function syncResults(state, store) {
         const fa = hn === ours.home ? as : hs;
         const existing = state.db.results?.[mk(ours.id)];
         if (!existing || existing.h !== fh || existing.a !== fa) {
-          await api.setResult(store, ours.id, { h: fh, a: fa, auto: true });
+          await api.setResult(store, ours.id, { h: fh, a: fa, auto: true, espn: ev.id });
           updated++;
         }
       }

@@ -93,7 +93,7 @@ async function main() {
         const fa = hn === ours.home ? as : hs;
         const existing = curResults[mk(ours.id)];
         if (!existing || existing.h !== fh || existing.a !== fa) {
-          const fresh = { h: fh, a: fa, auto: true, k: RESULT_WRITE_KEY };
+          const fresh = { h: fh, a: fa, auto: true, k: RESULT_WRITE_KEY, espn: ev.id };
           await dbPut(`results/${mk(ours.id)}`, fresh, tok);
           curResults[mk(ours.id)] = fresh;
           updated++;
