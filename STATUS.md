@@ -1,6 +1,13 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-11 ~22:00 (Berlin) — **LIVE & VERIFIED** ✅ (busy live-tuning session during the opening match)
+**Updated:** 2026-06-13 ~17:10 (Berlin) — **LIVE & VERIFIED** ✅
+
+## 2026-06-13 — Cert fixed + killed the stale-version problem (Mac session, Neo)
+Family still saw the OLD app (could enter results; night-game dates wrong) while Marc saw the current one. Root cause + fixes:
+- **GitHub Pages never provisioned the TLS cert for the custom domain** after the Vercel→Pages move — every edge node served the generic `*.github.io` cert, so https failed on family devices and the cache-first SW just kept serving the old cached app (and could never fetch new code). Marc re-added the custom domain in Settings→Pages → cert provisioned, Enforce HTTPS on. **This was the actual blocker** — the v3 code already had both bug-fixes (LA-day grouping for 3am kickoffs, admin-only result UI).
+- **Replaced cache-first SW with a self-destroying one** (`sw.js`, `b425e88`): clears all caches, unregisters, reloads open tabs. On GitHub Pages there's no edge-request quota, so cache-first only pinned devices to stale code + forced VERSION bumps. `app.js` no longer registers a SW and clears any leftover. Site now runs with **no service worker** → every deploy reaches everyone on next load. Trade-off: no offline/PWA-install (fine for a live Firebase-backed game).
+- **Server-side result lock** (`b425e88` + RTDB rules deployed): the admin UI gate was UI-only — a stale app still wrote results to the shared DB. Now `results/$matchId` `.write` requires a `k` write-key (`wmtipp-rk-02fd88bd8e8f`) that the current app (`config.js`→`store.js`) + cron (`sync-results.mjs`) stamp on every write. **Verified live:** anon keyless write → `401 Permission denied`; keyed write → `200`. Limitation: key ships in the bundle (stops stale-app/accidental writes, not a determined inspector). `koTeams`/`tips`/`bonus` rules unchanged. **If the key ever changes it must change in all three places at once.**
+- Toolchain: this Mac is now a full deploy box — `gh` (marcoz711) + `firebase-cli` (marcpage711@gmail.com) via Homebrew; repo at `~/Projects/wm-tippspiel`. Deploy code = `git push` (→ Pages); deploy rules = `firebase deploy --only database`.
 
 ## Latest (2026-06-11 evening, per Marc via Discord)
 - **3rd-place prize float fix** (`ea961fe`): Regeln pot line passed raw `STAKE.split` products → `14 × 0.2 = 2.80000000000000003 €`. Now uses the leaderboard's `fmt()` rounding → `2,8 €`.
