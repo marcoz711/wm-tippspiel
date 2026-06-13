@@ -16,7 +16,10 @@
       }
     },
     "results": {
-      "$matchId": { ".write": "auth != null" }
+      "$matchId": {
+        ".write": "auth != null && newData.child('k').val() === 'wmtipp-rk-02fd88bd8e8f'",
+        ".validate": "newData.child('h').isNumber() && newData.child('a').isNumber()"
+      }
     },
     "bonus": {
       "$pid": { ".write": "auth != null" }

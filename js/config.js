@@ -12,11 +12,16 @@ export const SCORING = {
 // Entry fee per player (EUR) and pot split for the top 3.
 export const STAKE = { fee: 2, split: [0.5, 0.3, 0.2] };
 
-// Only these players see the manual "enter result" UI. Results otherwise
-// come from the openfootball auto-sync (js/sync.js + the daily GitHub Action).
-// Note: this hides the UI; it is not a hard server rule (RTDB allows any
-// authed write), but it stops accidental early result entry by family members.
+// Only these players see the manual "enter result" UI (a soft UI gate).
+// Results otherwise come from the auto-sync (js/sync.js + the daily Action).
 export const ADMIN_PIDS = ['marcus'];
+
+// Shared key the CURRENT app + the daily sync stamp on every result write.
+// The RTDB rule (database.rules.json) rejects result writes that lack it, so an
+// OLD cached version of the app — which doesn't send it — can no longer save
+// results. NOTE: it ships in the bundle, so it's a stale-app / accidental guard,
+// not a hard secret. MUST match database.rules.json + scripts/sync-results.mjs.
+export const RESULT_WRITE_KEY = 'wmtipp-rk-02fd88bd8e8f';
 
 // Players who have paid into the pot — shown with a ✓ on the Bonus screen.
 // Update as more people pay (then redeploy).

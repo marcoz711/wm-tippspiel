@@ -19,6 +19,7 @@ const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/sc
 const ESPN_RANGES = ['20260611-20260622', '20260623-20260704', '20260705-20260719'];
 const API_KEY = 'AIzaSyBbjhRhsD8BWcDhaasOAatQNtvAMH_Bnxk';
 const DB = 'https://wm-tippspiel-2026-bf3e4-default-rtdb.europe-west1.firebasedatabase.app';
+const RESULT_WRITE_KEY = 'wmtipp-rk-02fd88bd8e8f'; // must match js/config.js + database.rules.json
 
 // Source team names → our data/matches.json names (mirror of js/sync.js).
 const ALIASES = {
@@ -92,7 +93,7 @@ async function main() {
         const fa = hn === ours.home ? as : hs;
         const existing = curResults[mk(ours.id)];
         if (!existing || existing.h !== fh || existing.a !== fa) {
-          const fresh = { h: fh, a: fa, auto: true };
+          const fresh = { h: fh, a: fa, auto: true, k: RESULT_WRITE_KEY };
           await dbPut(`results/${mk(ours.id)}`, fresh, tok);
           curResults[mk(ours.id)] = fresh;
           updated++;
@@ -150,7 +151,7 @@ async function main() {
 
         if (Array.isArray(score) && score.length === 2) {
           const existing = curResults[mk(ours.id)];
-          const fresh = { h: score[0], a: score[1], auto: true };
+          const fresh = { h: score[0], a: score[1], auto: true, k: RESULT_WRITE_KEY };
           if (!existing || existing.h !== fresh.h || existing.a !== fresh.a) {
             if (ours.stage !== 'group' && fresh.h === fresh.a) {
               const et = tm.score?.et, p = tm.score?.p;

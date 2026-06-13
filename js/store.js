@@ -1,4 +1,4 @@
-import { FIREBASE_CONFIG } from './config.js';
+import { FIREBASE_CONFIG, RESULT_WRITE_KEY } from './config.js';
 
 // Shared data tree (same shape locally and in Firebase RTDB):
 // players/{pid} = {name, emoji}
@@ -71,7 +71,7 @@ export const mk = (id) => `m${id}`;
 export const api = {
   setPlayer: (s, pid, player) => s.set(`players/${pid}`, player),
   setTip: (s, pid, matchId, tip) => s.set(`tips/${pid}/${mk(matchId)}`, tip),
-  setResult: (s, matchId, result) => s.set(`results/${mk(matchId)}`, result),
+  setResult: (s, matchId, result) => s.set(`results/${mk(matchId)}`, { ...result, k: RESULT_WRITE_KEY }),
   setBonus: (s, pid, bonus) => s.set(`bonus/${pid}`, bonus),
   setKoTeams: (s, matchId, teams) => s.set(`koTeams/${mk(matchId)}`, teams),
 };

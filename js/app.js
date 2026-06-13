@@ -807,8 +807,12 @@ function checkCelebration() {
 }
 
 async function main() {
-  if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+  // No service worker. The old cache-first SW pinned family devices to stale
+  // code; on GitHub Pages there's no edge-request quota to justify it. Remove
+  // any SW left over from older builds so everyone always loads the live version.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
   }
   if (!DEMO) initAnalytics();
   await Promise.all([loadFixtures(), loadTeamsInfo()]);
