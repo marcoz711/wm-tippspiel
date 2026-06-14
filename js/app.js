@@ -98,6 +98,42 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.add('hidden'), 1800);
 }
 
+// ── freshness ──────────────────────────────────────────────────────────────
+// No service worker = the network is the source of truth. hardReset wipes any
+// leftover SW + caches and reloads. The auto-update check compares the live
+// deploy's ETag against the one loaded; if it changed, a new version shipped, so
+// reload — this keeps every user on the latest version without manual action.
+async function hardReset() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch { /* best effort */ }
+  location.reload();
+}
+
+let _deployTag = null, _resetting = false;
+async function checkForUpdate() {
+  if (_resetting) return;
+  let tag = null;
+  try {
+    const r = await fetch('index.html?cb=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+    tag = r.headers.get('etag') || r.headers.get('last-modified');
+  } catch { return; }
+  if (!tag) return;
+  if (_deployTag === null) { _deployTag = tag; return; } // baseline on first load
+  if (tag !== _deployTag) { _resetting = true; await hardReset(); }
+}
+function initAutoUpdate() {
+  checkForUpdate(); // baseline this deploy's tag
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+}
+
 // ── data loading ────────────────────────────────────────────────────
 async function loadJSON(path) {
   const res = await fetch(path, { cache: 'no-store' });
@@ -837,23 +873,14 @@ async function main() {
   $$('.tab').forEach((b) => b.onclick = () => { state.tab = b.dataset.tab; render(); });
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'de' ? 'en' : 'de'); render(); };
   $('#player-chip').onclick = () => showPlayerOverlay();
-  // Hard reload for installed Home Screen apps (no address bar / pull-to-refresh):
-  // drop any service worker + caches, then reload fresh from the network.
+  // Hard reload for installed Home Screen apps (no address bar / pull-to-refresh).
   $('#reload-btn').onclick = async () => {
     const btn = $('#reload-btn');
     if (btn) btn.textContent = '⏳';
-    try {
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
-      }
-      if (window.caches) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-    } catch { /* best effort */ }
-    location.reload();
+    await hardReset();
   };
+  // Auto-update: reload when a newer deploy is detected (on load + on refocus).
+  initAutoUpdate();
   setInterval(() => { if (state.tab === 'matches') render(); }, 30000);
 
   // Auto-fill results once the tournament runs (daily-updated source).
