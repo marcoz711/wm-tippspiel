@@ -837,6 +837,23 @@ async function main() {
   $$('.tab').forEach((b) => b.onclick = () => { state.tab = b.dataset.tab; render(); });
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'de' ? 'en' : 'de'); render(); };
   $('#player-chip').onclick = () => showPlayerOverlay();
+  // Hard reload for installed Home Screen apps (no address bar / pull-to-refresh):
+  // drop any service worker + caches, then reload fresh from the network.
+  $('#reload-btn').onclick = async () => {
+    const btn = $('#reload-btn');
+    if (btn) btn.textContent = '⏳';
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      if (window.caches) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+    } catch { /* best effort */ }
+    location.reload();
+  };
   setInterval(() => { if (state.tab === 'matches') render(); }, 30000);
 
   // Auto-fill results once the tournament runs (daily-updated source).
