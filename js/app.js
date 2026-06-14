@@ -360,23 +360,23 @@ function dayWinner() {
   // Most recent Berlin day that has at least one result.
   const withResults = state.matches.filter((m) => getResult(m.id)?.h != null);
   if (!withResults.length) return null;
-  const lastDay = berlinDayKey.format(kickoff(withResults[withResults.length - 1]));
-  const dayMatches = withResults.filter((m) => berlinDayKey.format(kickoff(m)) === lastDay);
+  const lastDay = tournDayKey.format(kickoff(withResults[withResults.length - 1]));
+  const dayMatches = withResults.filter((m) => tournDayKey.format(kickoff(m)) === lastDay);
   const scores = Object.entries(players()).map(([pid, p]) => ({
     p, pts: dayMatches.reduce((sum, m) => sum + scoreTip(getTip(pid, m.id), getResult(m.id)), 0),
   }));
   const max = Math.max(...scores.map((s) => s.pts));
   if (max <= 0) return null;
-  return { day: berlinFmtDate().format(kickoff(dayMatches[0])), winners: scores.filter((s) => s.pts === max), pts: max };
+  return { day: tournFmtDate().format(kickoff(dayMatches[0])), winners: scores.filter((s) => s.pts === max), pts: max };
 }
 
 // Ranks as of the start of today (Berlin) — basis for movement arrows.
 function ranksAtDayStart() {
-  const todayKey = berlinDayKey.format(new Date(now()));
+  const todayKey = tournDayKey.format(new Date(now()));
   const prevResults = {};
   for (const m of state.matches) {
     const r = state.db.results?.[mk(m.id)];
-    if (r && berlinDayKey.format(kickoff(m)) !== todayKey) prevResults[mk(m.id)] = r;
+    if (r && tournDayKey.format(kickoff(m)) !== todayKey) prevResults[mk(m.id)] = r;
   }
   const rows = computeStandings({ players: players(), tips: state.db.tips, results: prevResults, bonus: state.db.bonus, championResult: null });
   return Object.fromEntries(rows.map((r) => [r.pid, r.rank]));
