@@ -1,6 +1,10 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-13 ~17:10 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-14 (Berlin) — **LIVE & VERIFIED** ✅
+
+## 2026-06-14 — iOS PWA fixes (Neo, per Marc)
+- **Header clipped by iOS status bar** when installed as a Home Screen app (standalone). `.app-header` + `.header-actions` now add `env(safe-area-inset-top)` so the trophy/flag controls clear the status bar. (`a536e7b`)
+- **Tagessieger labeled with wrong day.** `dayWinner()` (and `ranksAtDayStart()`) were still grouping by `berlinDayKey` while the rest of the app moved to US host-country day (`tournDayKey`, commit `9bb6ba4`). An overnight US match (US evening = early Berlin morning) got bucketed into the next Berlin day, so the daily winner showed "today" when it was the prior matchday. Now both use `tournDayKey`/`tournFmtDate`. NOTE: this is the gap behind STATUS's earlier "v3 already had LA-day grouping" claim — the match-list grouping had it; dayWinner did not. Kickoff *times* still render in Berlin. (`a536e7b`)
 
 ## 2026-06-13 — Cert fixed + killed the stale-version problem (Mac session, Neo)
 Family still saw the OLD app (could enter results; night-game dates wrong) while Marc saw the current one. Root cause + fixes:
