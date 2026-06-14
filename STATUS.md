@@ -2,7 +2,9 @@
 
 **Updated:** 2026-06-14 (Berlin) — **LIVE & VERIFIED** ✅
 
-## 2026-06-14 — iOS PWA fixes (Neo, per Marc)
+## 2026-06-14 — iOS PWA fixes + bonus-tab cleanup (Neo, per Marc)
+- **Removed the green paid-player ✓ badges** from the Bonus tab champion list (`renderBonus`, `d3dc593`). `.paid-badge` CSS + `PAID_PIDS` import left in place (unused, harmless).
+
 - **Header clipped by iOS status bar** when installed as a Home Screen app (standalone). `.app-header` + `.header-actions` now add `env(safe-area-inset-top)` so the trophy/flag controls clear the status bar. (`a536e7b`)
 - **Tagessieger labeled with wrong day.** `dayWinner()` (and `ranksAtDayStart()`) were still grouping by `berlinDayKey` while the rest of the app moved to US host-country day (`tournDayKey`, commit `9bb6ba4`). An overnight US match (US evening = early Berlin morning) got bucketed into the next Berlin day, so the daily winner showed "today" when it was the prior matchday. Now both use `tournDayKey`/`tournFmtDate`. NOTE: this is the gap behind STATUS's earlier "v3 already had LA-day grouping" claim — the match-list grouping had it; dayWinner did not. Kickoff *times* still render in Berlin. (`a536e7b`)
 
