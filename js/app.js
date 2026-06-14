@@ -530,8 +530,7 @@ function renderBonus() {
   if (locked) {
     const rows = Object.entries(players()).map(([pid, p]) => {
       const pick = state.db.bonus?.[pid]?.champion;
-      const paid = PAID_PIDS.includes(pid) ? ` <span class="paid-badge" title="${t('paid')}">✓</span>` : '';
-      return `<div class="tip-row-line"><span class="who"><span>${p.emoji}</span> ${esc(p.name)}${paid}</span>
+      return `<div class="tip-row-line"><span class="who"><span>${p.emoji}</span> ${esc(p.name)}</span>
         <span class="tipval">${pick ? `${flagImg(flagOf(pick), 'flag-inline')} ${esc(teamName(pick))}` : `<span class="no-tip">${t('noTip')}</span>`}</span></div>`;
     }).join('');
     pickUI = `<p>${t('bonusLocked')}</p><div class="all-tips champ-list">${rows}</div>`;
