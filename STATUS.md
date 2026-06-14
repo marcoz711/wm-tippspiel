@@ -2,7 +2,9 @@
 
 **Updated:** 2026-06-14 (Berlin) — **LIVE & VERIFIED** ✅
 
-## 2026-06-14 — iOS PWA fixes + bonus cleanup + filter swap + reload button (Neo, per Marc)
+## 2026-06-14 — iOS PWA fixes + bonus + filter + reload button + auto-update (Neo, per Marc)
+- **Auto-update** (`0307624`): on load the app baselines the live deploy's `index.html` ETag (verified GH Pages returns a stable content-based ETag); on every `visibilitychange→visible` (app refocus) it re-checks via a `HEAD index.html?cb=` no-store fetch — if the ETag changed, a new version shipped, so it runs `hardReset()` (unregister SW + clear caches + reload). Loop-guarded (`_resetting` + re-baseline). No manual version bump needed. Refactored the reload-button handler to share `hardReset()`. **Limitation:** only protects devices already running this code; anyone still on the OLD cache-first SW must clear site data once first (iOS won't auto-update a standalone PWA's SW), then they're permanently self-updating.
+
 - **In-header 🔄 "Reload app" button** (`090338a`): for installed Home Screen apps (no address bar / pull-to-refresh). One tap unregisters any service worker, deletes all caches, and `location.reload()`s — fresh from network. `#reload-btn` in `.header-actions`, handler bound once near lang/player chips.
 
 - **Replaced the "Offen"/"Open" match filter chip with "Gestern"/"Yesterday"** (`7dae1e5`). New filter shows matches whose tournament day (TOURN_TZ) == yesterday. i18n key `filterYesterday` added DE+EN; `filterOpen` left in i18n (unused, harmless). Edge: a rest-day yesterday shows empty (literal "yesterday").
