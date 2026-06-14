@@ -2,7 +2,7 @@ const dict = {
   de: {
     appTitle: 'WM 2026 Tippspiel',
     tabMatches: 'Spiele', tabTable: 'Tabelle', tabBonus: 'Bonus', tabFavorites: 'Teams',
-    filterOpen: 'Offen', filterPlayed: 'Gespielt', refresh: 'Aktualisieren', refreshed: 'Aktualisiert ✓',
+    filterOpen: 'Offen', filterYesterday: 'Gestern', filterPlayed: 'Gespielt', refresh: 'Aktualisieren', refreshed: 'Aktualisiert ✓',
     nextKickoff: 'Nächster Anpfiff',
     openTips: '{n} offene Tipps',
     lockNote: 'Tippabgabe bis Anpfiff',
@@ -72,7 +72,7 @@ const dict = {
   en: {
     appTitle: 'WC 2026 Predictor',
     tabMatches: 'Matches', tabTable: 'Table', tabBonus: 'Bonus', tabFavorites: 'Teams',
-    filterOpen: 'Open', filterPlayed: 'Played', refresh: 'Refresh', refreshed: 'Refreshed ✓',
+    filterOpen: 'Open', filterYesterday: 'Yesterday', filterPlayed: 'Played', refresh: 'Refresh', refreshed: 'Refreshed ✓',
     nextKickoff: 'Next kickoff',
     openTips: '{n} open tips',
     lockNote: 'Tips close at kickoff',

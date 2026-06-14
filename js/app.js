@@ -151,7 +151,10 @@ function filteredMatches() {
     return state.matches.filter((m) => tournDayKey.format(kickoff(m)) === nextKey);
   }
   if (state.filter === 'ko') return state.matches.filter((m) => m.stage !== 'group');
-  if (state.filter === 'open') return state.matches.filter((m) => !isLocked(m));
+  if (state.filter === 'yesterday') {
+    const yKey = tournDayKey.format(new Date(now() - 86400000));
+    return state.matches.filter((m) => tournDayKey.format(kickoff(m)) === yKey);
+  }
   if (state.filter === 'played') return state.matches.filter((m) => isLocked(m));
   if (state.filter.startsWith('g:')) { const g = state.filter.slice(2); return state.matches.filter((m) => m.group === g); }
   return state.matches;
@@ -175,7 +178,7 @@ function updateInfoChip() {
 
 function renderMatches() {
   const chips = [
-    ['today', t('today')], ['open', t('filterOpen')], ['all', t('all')], ['ko', t('knockout')],
+    ['today', t('today')], ['yesterday', t('filterYesterday')], ['all', t('all')], ['ko', t('knockout')],
   ].map(([k, label]) => `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-filter="${k}">${label}</button>`).join('')
   + `<select class="filter-chip group-select ${state.filter.startsWith('g:') ? 'active' : ''}" id="group-filter" aria-label="${t('group')}">
       <option value="">${t('group')} ▾</option>
