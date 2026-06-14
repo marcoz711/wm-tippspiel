@@ -2,7 +2,9 @@
 
 **Updated:** 2026-06-14 (Berlin) — **LIVE & VERIFIED** ✅
 
-## 2026-06-14 — iOS PWA fixes + bonus-tab cleanup + filter swap (Neo, per Marc)
+## 2026-06-14 — iOS PWA fixes + bonus cleanup + filter swap + reload button (Neo, per Marc)
+- **In-header 🔄 "Reload app" button** (`090338a`): for installed Home Screen apps (no address bar / pull-to-refresh). One tap unregisters any service worker, deletes all caches, and `location.reload()`s — fresh from network. `#reload-btn` in `.header-actions`, handler bound once near lang/player chips.
+
 - **Replaced the "Offen"/"Open" match filter chip with "Gestern"/"Yesterday"** (`7dae1e5`). New filter shows matches whose tournament day (TOURN_TZ) == yesterday. i18n key `filterYesterday` added DE+EN; `filterOpen` left in i18n (unused, harmless). Edge: a rest-day yesterday shows empty (literal "yesterday").
 
 - **Removed the green paid-player ✓ badges** from the Bonus tab champion list (`renderBonus`, `d3dc593`). `.paid-badge` CSS + `PAID_PIDS` import left in place (unused, harmless).
