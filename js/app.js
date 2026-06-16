@@ -285,9 +285,9 @@ function renderMatchCard(m) {
 
   let extra = '';
   if (locked && result) {
-    const espnId = /^\d+$/.test(String(result.espn)) ? String(result.espn) : null;
-    const report = espnId
-      ? `<a class="report-link" href="https://www.espn.com/soccer/match/_/gameId/${espnId}" target="_blank" rel="noopener noreferrer">📊 ${t('matchReport')}</a>`
+    const searchQ = encodeURIComponent(`${home.label} ${away.label} WM 2026 Spielbericht`);
+    const report = (home.real && away.real)
+      ? `<a class="report-link" href="https://www.google.de/search?q=${searchQ}" target="_blank" rel="noopener noreferrer">📊 ${t('matchReport')}</a>`
       : '';
     extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span>${report}</div>`;
   }
