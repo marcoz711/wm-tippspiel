@@ -41,11 +41,14 @@ export function computeStandings({ players, tips, results, bonus, championResult
     if (championResult && pick === championResult) bonusPts = scoring.championBonus;
     return { pid, name: p.name, emoji: p.emoji || '⚽', points: points + bonusPts, matchPoints: points, bonusPts, exact, diff: diffN, tend, tipped };
   });
-  // Tie-break: total points, then # exact results, then # goal-diff hits (Kicktipp convention).
+  // Display order tie-break: total points, then # exact results, then # goal-diff hits
+  // (Kicktipp convention) — this only orders rows within equal points, it does NOT split rank.
   rows.sort((a, b) => b.points - a.points || b.exact - a.exact || b.diff - a.diff || a.name.localeCompare(b.name));
+  // Rank by POINTS ONLY: equal points share a rank, the next rank skips (standard
+  // competition ranking, e.g. 1, 2, 2, 4). Tie-breakers above decide listing order, not rank.
   let lastKey = null, lastRank = 0;
   rows.forEach((r, i) => {
-    const key = `${r.points}|${r.exact}|${r.diff}`;
+    const key = `${r.points}`;
     r.rank = key === lastKey ? lastRank : (lastRank = i + 1, i + 1);
     lastKey = key;
   });
