@@ -5,6 +5,7 @@ import { initAnalytics, track, identify } from './analytics.js';
 import { scoreTip, computeStandings } from './scoring.js';
 import { t, getLang, setLang, teamName } from './i18n.js';
 import { SCORING, STAKE, TOURNAMENT_START_UTC, ADMIN_PIDS, PAID_PIDS } from './config.js';
+import { initPullToRefresh } from './pull-to-refresh.js';
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -879,6 +880,8 @@ async function main() {
     if (btn) btn.textContent = '⏳';
     await hardReset();
   };
+  // Pull down at the top of the page to refresh (same as the 🔄 button).
+  initPullToRefresh(hardReset);
   // Auto-update: reload when a newer deploy is detected (on load + on refocus).
   initAutoUpdate();
   setInterval(() => { if (state.tab === 'matches') render(); }, 30000);

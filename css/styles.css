@@ -349,6 +349,21 @@ body {
   .team .flag .flag-img { width: 40px; }
 }
 
+/* ── Pull-to-refresh indicator ── */
+#ptr-indicator {
+  position: fixed; top: env(safe-area-inset-top); left: 50%; z-index: 200;
+  margin-top: -50px; /* parked just above the viewport until pulled down */
+  width: 40px; height: 40px;
+  transform: translateX(-50%) translateY(0); opacity: 0;
+  pointer-events: none; display: grid; place-items: center;
+  background: var(--gold); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 999px; box-shadow: var(--shadow-sm);
+}
+#ptr-indicator.ptr-ready { background: var(--gold-2); }
+#ptr-indicator .ptr-spinner { font-size: 18px; line-height: 1; display: block; }
+#ptr-indicator.ptr-spin .ptr-spinner { animation: ptr-rot 0.8s linear infinite; }
+@keyframes ptr-rot { to { transform: rotate(360deg); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
 }

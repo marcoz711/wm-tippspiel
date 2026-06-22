@@ -1,6 +1,17 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-14 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-22 (Berlin) — **LIVE & VERIFIED** ✅
+
+## 2026-06-22 — Pull-to-refresh + live tips (Neo, per Marc via Discord)
+- **Pull-to-refresh** added for the standalone PWA (no browser address-bar refresh in installed mode). New module `js/pull-to-refresh.js`: pulling down at the top of the page (`window.scrollY <= 0`) past a 70px threshold runs `hardReset()` — the same SW-unregister + cache-clear + reload as the 🔄 button. Damped travel (`dy^0.85`), gold pill indicator that fades/rotates in, spins while refreshing, snaps back below threshold, 4s fallback. Wired in `main()` via `initPullToRefresh(hardReset)`; CSS `#ptr-indicator` in `styles.css`. Syntax-checked (`node --check`); **touch gesture itself to be verified by Marc on device, not in this session.**
+- **Tips entered via REST anon-auth** (`tips/<pid>/<mXX>`), all clean adds (no prior tips, nothing overwritten):
+  - `vera` + `gewinner` → **m43 Argentina 2:1 Austria** ({h:2,a:1}). **Flagged:** entered ~15 min AFTER kickoff (19:00 Berlin) — admin override past the lock.
+  - `--juli------` → **m42 France 4:1 Iraq**, **m41 Norway 1:2 Senegal**, **m44 Jordan 1:2 Algeria** (all BEFORE kickoff).
+  - `--palme--` → **m42 France 3:1 Iraq**, **m41 Norway 1:1 Senegal**, **m44 Jordan 1:1 Algeria** (all BEFORE kickoff). Marc wrote "bor Senegal" → read as Norway (only Senegal group match), confirmed in the reply.
+
+## 2026-06-15 — Live tip overrides, match 14 (Neo, per Marc via Discord)
+- Per Marc, added tips for **m14 Spain 6:0 Cape Verde** ({h:6,a:0}) for `vera` and `gewinner` via REST anon-auth (`tips/<pid>/m14`). Both had no prior m14 tip (clean adds, nothing overwritten). **Flagged:** entered ~1h AFTER kickoff (18:00 Berlin) — admin override past the lock, consistent with the matchday-1/2 live overrides; no result in DB yet at write time. Confirmed orientation with Marc (Spain is home → 6:0).
+- Then added Vera's tips for the other 3 of today's games (all BEFORE kickoff, clean, no prior tips): **m16 Belgium 3:1 Egypt** ({h:3,a:1}), **m13 Saudi Arabia 0:1 Uruguay** ({h:0,a:1}), **m15 Iran 2:0 New Zealand** ({h:2,a:0}). Orientation matched Marc's home:away order verbatim.
 
 ## 2026-06-14 — iOS PWA fixes + bonus + filter + reload button + auto-update (Neo, per Marc)
 - **Auto-update** (`0307624`): on load the app baselines the live deploy's `index.html` ETag (verified GH Pages returns a stable content-based ETag); on every `visibilitychange→visible` (app refocus) it re-checks via a `HEAD index.html?cb=` no-store fetch — if the ETag changed, a new version shipped, so it runs `hardReset()` (unregister SW + clear caches + reload). Loop-guarded (`_resetting` + re-baseline). No manual version bump needed. Refactored the reload-button handler to share `hardReset()`. **Limitation:** only protects devices already running this code; anyone still on the OLD cache-first SW must clear site data once first (iOS won't auto-update a standalone PWA's SW), then they're permanently self-updating.
