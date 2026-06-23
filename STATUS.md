@@ -1,6 +1,9 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-22 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-23 (Berlin) — **LIVE & VERIFIED** ✅
+
+## 2026-06-23 — Live tips, m47 (Neo, per Marc via Discord voice note)
+- Voice note (transcribed locally, deleted after): Vera + Palme forgot to tip again; scores given but no match/team named. All of today's 3 upcoming games were untipped by both, so confirmed match+orientation with Marc before writing (he said "Ja"). Wrote to `tips/<pid>/m47` (Portugal home): **`--palme--` → 2:1**, **`vera` → 3:1**. Both clean adds. Entered ~7 min after the 19:00 kickoff (admin override past the lock).
 
 ## 2026-06-22 — Pull-to-refresh + live tips (Neo, per Marc via Discord)
 - **Pull-to-refresh** added for the standalone PWA (no browser address-bar refresh in installed mode). New module `js/pull-to-refresh.js`: pulling down at the top of the page (`window.scrollY <= 0`) past a 70px threshold runs `hardReset()` — the same SW-unregister + cache-clear + reload as the 🔄 button. Damped travel (`dy^0.85`), gold pill indicator that fades/rotates in, spins while refreshing, snaps back below threshold, 4s fallback. Wired in `main()` via `initPullToRefresh(hardReset)`; CSS `#ptr-indicator` in `styles.css`. Syntax-checked (`node --check`); **touch gesture itself to be verified by Marc on device, not in this session.**
