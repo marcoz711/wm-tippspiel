@@ -236,15 +236,28 @@ function renderMatches() {
   const list = filteredMatches();
   if (!list.length) return `${demoBanner}${bonusNudge}<div class="filters">${chips}</div><div class="empty-note">🏖️</div>`;
 
+  // Day to auto-scroll to in multi-day views ("all"): today if it has matches,
+  // else the next upcoming day, else the last day of the tournament.
+  const todayKey = tournDayKey.format(new Date(now()));
+  const dayKeys = list.map((m) => tournDayKey.format(kickoff(m)));
+  const anchorKey = dayKeys.includes(todayKey)
+    ? todayKey
+    : (dayKeys.find((k) => k >= todayKey) || dayKeys[dayKeys.length - 1]);
+
   let html = `${demoBanner}${bonusNudge}<div class="filters">${chips}</div>`;
-  let lastDay = '', lastStage = '';
+  let lastDay = '', lastStage = '', anchored = false;
   for (const m of list) {
     if (m.stage !== lastStage && m.stage !== 'group') {
       html += `<div class="stage-header"><span class="display">${t('stages.' + m.stage)}</span></div>`;
     }
     lastStage = m.stage;
     const day = tournFmtDate().format(kickoff(m));
-    if (day !== lastDay) { html += `<div class="date-header"><span>${day}</span></div>`; lastDay = day; }
+    if (day !== lastDay) {
+      const isAnchor = !anchored && tournDayKey.format(kickoff(m)) === anchorKey;
+      if (isAnchor) anchored = true;
+      html += `<div class="date-header"${isAnchor ? ' id="day-anchor"' : ''}><span>${day}</span></div>`;
+      lastDay = day;
+    }
     html += renderMatchCard(m);
   }
   return html;
@@ -707,7 +720,14 @@ function showPlayerOverlay() {
 
 // ── event binding ───────────────────────────────────────────────────
 function bindView() {
-  $$('[data-filter]').forEach((b) => b.onclick = () => { state.filter = b.dataset.filter; render(); });
+  $$('[data-filter]').forEach((b) => b.onclick = () => {
+    state.filter = b.dataset.filter;
+    render();
+    // "Alle": jump straight to today's matches instead of the top of the list.
+    if (state.filter === 'all') {
+      requestAnimationFrame(() => $('#day-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  });
   const gf = $('#group-filter');
   if (gf) gf.onchange = () => { state.filter = gf.value || 'all'; render(); };
   const rf = $('[data-refresh]');
