@@ -1,6 +1,11 @@
 # STATUS — WM-Tippspiel 2026
 
-**Updated:** 2026-06-23 (Berlin) — **LIVE & VERIFIED** ✅
+**Updated:** 2026-06-28 (Berlin) — **LIVE & VERIFIED** ✅
+
+## 2026-06-28 — Auto-scroll, KO no-draw rule, Saturday tips (Neo, per Marc via Discord)
+- **"Alle" auto-scrolls to today** (`a6f243a`): tapping the "Alle" filter now jumps the match list straight to the current tournament day instead of the top. `renderMatches()` tags the current day's `date-header` with `id="day-anchor"` (today if it has matches, else next upcoming day, else last day); the `data-filter` click handler `scrollIntoView`s it. Grouped by tournDayKey (LA). Syntax-checked.
+- **Knockout phase forbids draw tips + penalty warning** (`f25f7f8`): for `stage != 'group'`, `saveTipFromInputs()` rejects a drawn tip (`h === a`) with a toast (`koNoDraw`) and does not save; each unlocked KO card shows a yellow hint (`koHint`) that a winner is required and a level game may go to a penalty shootout. New i18n keys DE+EN; `.ko-hint` CSS. Group games unchanged (draws still allowed). Verified: keys resolve both langs, logic blocks only KO draws. **Note:** pre-existing KO draw tips (if any) stay until re-tipped — not migrated.
+- **Saturday tips entered from a photo** (`tips/<pid>/m67–m72`): Marc printed the tip sheet (PDF generated this session, landscape + world ranks), 4 family members filled it by hand, sent a photo. Read the handwriting, mapped columns to real players (col 1=`--juli------`, 2=`--palme--`, 3=`vera`, 4=`gewinner`), confirmed none had prior tips for m67–m72 (all clean adds), wrote 24 tips via `firebase database:update` and read them back to verify. Games already played → admin override past the lock (intended). Match day = the app's Saturday (LA): m67 Panama-England, m68 Croatia-Ghana, m71 Colombia-Portugal, m72 DR Congo-Uzbekistan, m69 Algeria-Austria, m70 Jordan-Argentina.
 
 ## 2026-06-23 — Live tips, m47 (Neo, per Marc via Discord voice note)
 - Voice note (transcribed locally, deleted after): Vera + Palme forgot to tip again; scores given but no match/team named. All of today's 3 upcoming games were untipped by both, so confirmed match+orientation with Marc before writing (he said "Ja"). Wrote to `tips/<pid>/m47` (Portugal home): **`--palme--` → 2:1**, **`vera` → 3:1**. Both clean adds. Entered ~7 min after the 19:00 kickoff (admin override past the lock).
