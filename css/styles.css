@@ -157,6 +157,7 @@ body {
 .scorebox.empty { color: #b9c7bf; }
 
 .lockline { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
+.ko-hint { text-align: center; font-size: 11px; color: #8a5a00; background: #fff6e0; border: 1px solid #f3d27a; border-radius: 8px; padding: 6px 8px; margin-top: 8px; font-weight: 700; line-height: 1.35; }
 .resband { text-align: center; margin-top: 10px; }
 .resband .final { display: inline-block; font-size: 15px; letter-spacing: 0.06em; color: #fff; font-weight: 900;
   background: var(--ink); border: 2px solid var(--ink); border-radius: 9px; padding: 3px 12px; }

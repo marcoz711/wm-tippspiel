@@ -306,6 +306,8 @@ function renderMatchCard(m) {
     extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span>${report}</div>`;
   }
   if (!locked) {
+    // Knockout games can't be tipped as a draw — warn upfront and flag the penalty possibility.
+    if (m.stage !== 'group') extra += `<div class="ko-hint">⚔️ ${t('koHint')}</div>`;
     const total = Object.keys(players()).length;
     const n = Object.keys(players()).filter((pid) => getTip(pid, m.id)).length;
     const canExpand = total > 1;
@@ -831,6 +833,8 @@ async function saveTipFromInputs(mid) {
   const h = parseInt($(`.score-input[data-mid="${mid}"][data-side="h"]`).value, 10);
   const a = parseInt($(`.score-input[data-mid="${mid}"][data-side="a"]`).value, 10);
   if (Number.isInteger(h) && Number.isInteger(a) && h >= 0 && a >= 0) {
+    // Knockout matches need a winner — reject draws (a tie would go to penalties in reality).
+    if (m.stage !== 'group' && h === a) { toast(t('koNoDraw')); return; }
     await api.setTip(state.store, state.pid, mid, { h, a });
     toast(t('saved'));
     track('tip_saved', { match: +mid, stage: m.stage });
