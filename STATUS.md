@@ -2,14 +2,16 @@
 
 **Updated:** 2026-06-30 (Berlin) — **LIVE & VERIFIED** ✅
 
-## 2026-06-30 — Penalty-shootout results now count + display (Neo, per Marc via Discord)
-- **Bug:** KO games decided on penalties were showing as plain draws (`1:1`) and scoring 0 for everyone. The sync already stored a `winner` field on penalty draws (m74 Germany–Paraguay, m75 Netherlands–Morocco, both `winner:"away"`), but `scoring.js` and the result band both ignored it. So tippers (who must pick a winner — KO no-draw rule) all got the draw-tendency mismatch → 0 pts, and the app looked like it stopped at 90 min.
-- **Fix (`46312ba`, client-side only, no data migration):**
-  - `scoreTip()`: when `result.winner` is set, the result tendency = the winner's side; award **tendency points (2)** to whoever picked the advancing team. Exact/diff can't apply (real play was level, KO tips are never draws).
-  - Result band: annotates `1 : 1  n.E. Paraguay` / `… pens Morocco` instead of a bare draw. New i18n key `afterPens` (DE `n.E.` / EN `pens`), `.pen-note` CSS.
-  - Verified penalty orientation against openfootball source: m74 `p:[3,4]` → Paraguay, m75 `p:[2,3]` → Morocco. `winner:"away"` correct, not inverted.
-- **Reality check told to Marc:** on m74 + m75 the whole family backed the favourite (Germany / Netherlands), both of whom lost the shootout → **nobody scores on these two**, by the rules, not a bug. The fix scores future penalty games correctly. Family must reload (🔄 / pull-to-refresh) to pick up the new bundle.
-- Scoring rule chosen: **tendency only (2 pts) for the correct winner** in a penalty game. Not the "+1 goal to the winner (1:1→2:1)" convention. Flagged to Marc as changeable if he prefers the +1 variant.
+## 2026-06-30 — Penalty-shootout results: shootout score = result, group rules (Neo, per Marc via Discord)
+- **Bug:** KO games decided on penalties showed as plain draws (`1:1`) and scored 0 for everyone. The sync stored a `winner` field on penalty draws (m74 Germany–Paraguay, m75 Netherlands–Morocco) but `scoring.js` + the result band ignored it.
+- **Final rule (per Marc, after a first wrong attempt):** a penalty game uses the **same rules as the group stage**, with the **penalty shootout score as the final result** (e.g. Germany 1:1 Paraguay, 3:4 on pens → result `3:4`, scored normally exact/diff/tendency). My first attempt (`46312ba`) used a special "tendency-only (2 pts) for the winner" rule — Marc rejected it ("gleiche Regeln wie zur Vorrunde"). Superseded by `0b00574`.
+- **Implementation (`0b00574`, client-side + data backfill):**
+  - `scoreTip()`: scores the tip against `result.pens {h,a}` when present, with the normal scheme; no KO special case.
+  - Result band: headlines the shootout score (`ENDSTAND 3 : 4`), keeps regular-time score as a small `n.E. · 1:1` note. i18n `afterPens` (DE `n.E.` / EN `pens`), `.pen-note` CSS.
+  - `sync.js` + `sync-results.mjs`: now store `pens {h,a}` from the source `p[]` array (winner kept for champion resolution), and re-write KO draws stored before winner/pens existed.
+  - Data model: `results/{id} = {h,a,winner?,pens?}` — h/a = regular-time score, pens = shootout tally (the scored + shown result).
+  - Penalty orientation verified vs openfootball: m74 `p:[3,4]` Paraguay, m75 `p:[2,3]` Morocco. m74/m75 backfilled with `pens` in Firebase.
+- **Net effect:** Karsten **+3** on m74 (tipped Paraguay 5:6, matched the 1-goal margin of 3:4); everyone else 0 on both (all backed the favourite that lost). Family must reload (🔄 / pull-to-refresh) for the new bundle.
 
 ## 2026-06-28 — Auto-scroll, KO no-draw rule, Saturday tips (Neo, per Marc via Discord)
 - **"Alle" auto-scrolls to today** (`a6f243a`): tapping the "Alle" filter now jumps the match list straight to the current tournament day instead of the top. `renderMatches()` tags the current day's `date-header` with `id="day-anchor"` (today if it has matches, else next upcoming day, else last day); the `data-filter` click handler `scrollIntoView`s it. Grouped by tournDayKey (LA). Syntax-checked.
