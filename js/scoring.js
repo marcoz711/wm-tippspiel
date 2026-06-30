@@ -6,6 +6,16 @@ export function scoreTip(tip, result, scoring = SCORING) {
   if (!Number.isInteger(result.h) || !Number.isInteger(result.a)) return 0;
 
   const tipTend = Math.sign(tip.h - tip.a);
+
+  // Knockout game decided by a penalty shootout: the stored 90/120-min score is a
+  // draw, but `winner` records who advanced. The final result (incl. shootout) is
+  // what counts, so the result's tendency is the winner's side. Exact/diff can't
+  // apply (real play was level, KO tips are never draws) — award tendency only.
+  if (result.winner === 'home' || result.winner === 'away') {
+    const winTend = result.winner === 'home' ? 1 : -1;
+    return tipTend === winTend ? scoring.tendency : 0;
+  }
+
   const resTend = Math.sign(result.h - result.a);
   if (tipTend !== resTend) return 0;
   if (tip.h === result.h && tip.a === result.a) return scoring.exact;

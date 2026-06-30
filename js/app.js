@@ -303,7 +303,11 @@ function renderMatchCard(m) {
     const report = (home.real && away.real)
       ? `<a class="report-link" href="https://www.google.de/search?q=${searchQ}" target="_blank" rel="noopener noreferrer">📊 ${t('matchReport')}</a>`
       : '';
-    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}</span>${report}</div>`;
+    // KO game decided on penalties: annotate the winner so it's not shown as a plain draw.
+    const penNote = (result.winner === 'home' || result.winner === 'away')
+      ? `<span class="pen-note">${t('afterPens')} ${esc((result.winner === 'home' ? home : away).label)}</span>`
+      : '';
+    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}${penNote}</span>${report}</div>`;
   }
   if (!locked) {
     // Knockout games can't be tipped as a draw — warn upfront and flag the penalty possibility.
