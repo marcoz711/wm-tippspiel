@@ -27,6 +27,19 @@ body {
   background: repeating-linear-gradient(90deg, var(--pitch) 0 64px, var(--pitch2) 64px 128px);
 }
 
+/* iOS standalone PWA: black-translucent status bar + viewport-fit=cover means scrolled
+   content slides UNDER the clock once the (non-sticky) header leaves. Mask the status-bar
+   zone with the pitch colour so no list row is ever clipped behind the clock. Zero-height
+   (and invisible) where there is no inset, e.g. Android / desktop. */
+body::before {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top);
+  background: repeating-linear-gradient(90deg, var(--pitch) 0 64px, var(--pitch2) 64px 128px);
+  z-index: 30;
+  pointer-events: none;
+}
+
 .display {
   font-family: 'Arial Black', 'Avenir Next Condensed', Futura, sans-serif;
   text-transform: uppercase;
