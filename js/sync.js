@@ -109,12 +109,16 @@ export async function syncResults(state, store) {
         if (Array.isArray(score) && score.length === 2) {
           const existing = state.db.results?.[mk(ours.id)];
           const fresh = { h: score[0], a: score[1], auto: true };
-          if (!existing || existing.h !== fresh.h || existing.a !== fresh.a) {
-            if (ours.stage !== 'group' && fresh.h === fresh.a) {
-              const et = tm.score?.et, p = tm.score?.p;
-              const decider = p || et;
-              if (Array.isArray(decider)) fresh.winner = decider[0] > decider[1] ? 'home' : 'away';
-            }
+          const koDraw = ours.stage !== 'group' && fresh.h === fresh.a;
+          if (koDraw) {
+            const et = tm.score?.et, p = tm.score?.p;
+            const decider = p || et;
+            if (Array.isArray(decider)) fresh.winner = decider[0] > decider[1] ? 'home' : 'away';
+            if (Array.isArray(p) && p.length === 2) fresh.pens = { h: p[0], a: p[1] };
+          }
+          // Re-write a KO draw that was stored before winner/pens existed.
+          const stale = koDraw && (existing?.winner == null || (fresh.pens && existing?.pens == null));
+          if (!existing || existing.h !== fresh.h || existing.a !== fresh.a || stale) {
             await api.setResult(store, ours.id, fresh);
             updated++;
           }

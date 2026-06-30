@@ -303,11 +303,15 @@ function renderMatchCard(m) {
     const report = (home.real && away.real)
       ? `<a class="report-link" href="https://www.google.de/search?q=${searchQ}" target="_blank" rel="noopener noreferrer">📊 ${t('matchReport')}</a>`
       : '';
-    // KO game decided on penalties: annotate the winner so it's not shown as a plain draw.
-    const penNote = (result.winner === 'home' || result.winner === 'away')
-      ? `<span class="pen-note">${t('afterPens')} ${esc((result.winner === 'home' ? home : away).label)}</span>`
+    // KO game decided on penalties: the shootout score is the final result (headline),
+    // with the regular-time score kept as a small note. `pens` is {h,a}.
+    const p = result.pens;
+    const hasPens = p && Number.isInteger(p.h) && Number.isInteger(p.a);
+    const scoreLine = hasPens ? `${p.h} : ${p.a}` : `${result.h} : ${result.a}`;
+    const penNote = hasPens
+      ? `<span class="pen-note">${t('afterPens')} · ${result.h}:${result.a}</span>`
       : '';
-    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${result.h} : ${result.a}${penNote}</span>${report}</div>`;
+    extra += `<div class="resband"><span class="final">${t('endstand').toUpperCase()}&nbsp;&nbsp;${scoreLine}${penNote}</span>${report}</div>`;
   }
   if (!locked) {
     // Knockout games can't be tipped as a draw — warn upfront and flag the penalty possibility.

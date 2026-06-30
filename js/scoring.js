@@ -3,23 +3,19 @@ import { SCORING } from './config.js';
 // tip and result: {h, a} integers. Returns points per the Kicktipp scheme.
 export function scoreTip(tip, result, scoring = SCORING) {
   if (!tip || !result || !Number.isInteger(tip.h) || !Number.isInteger(tip.a)) return 0;
-  if (!Number.isInteger(result.h) || !Number.isInteger(result.a)) return 0;
+
+  // Penalty-decided knockout game: the shootout score IS the final result and is
+  // scored by the exact same rules as every other match (Marc, 2026-06-30).
+  // `pens` {h,a} holds the shootout tally; the regular 1:1 stays in result.h/a.
+  const r = (result.pens && Number.isInteger(result.pens.h) && Number.isInteger(result.pens.a))
+    ? result.pens : result;
+  if (!Number.isInteger(r.h) || !Number.isInteger(r.a)) return 0;
 
   const tipTend = Math.sign(tip.h - tip.a);
-
-  // Knockout game decided by a penalty shootout: the stored 90/120-min score is a
-  // draw, but `winner` records who advanced. The final result (incl. shootout) is
-  // what counts, so the result's tendency is the winner's side. Exact/diff can't
-  // apply (real play was level, KO tips are never draws) — award tendency only.
-  if (result.winner === 'home' || result.winner === 'away') {
-    const winTend = result.winner === 'home' ? 1 : -1;
-    return tipTend === winTend ? scoring.tendency : 0;
-  }
-
-  const resTend = Math.sign(result.h - result.a);
+  const resTend = Math.sign(r.h - r.a);
   if (tipTend !== resTend) return 0;
-  if (tip.h === result.h && tip.a === result.a) return scoring.exact;
-  if (tip.h - tip.a === result.h - result.a) return scoring.diff;
+  if (tip.h === r.h && tip.a === r.a) return scoring.exact;
+  if (tip.h - tip.a === r.h - r.a) return scoring.diff;
   return scoring.tendency;
 }
 

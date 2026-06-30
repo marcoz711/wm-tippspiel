@@ -3,7 +3,8 @@ import { FIREBASE_CONFIG, RESULT_WRITE_KEY } from './config.js';
 // Shared data tree (same shape locally and in Firebase RTDB):
 // players/{pid} = {name, emoji}
 // tips/{pid}/{matchId} = {h, a}
-// results/{matchId} = {h, a, winner?}   winner: 'home'|'away' for KO draws (pens)
+// results/{matchId} = {h, a, winner?, pens?}  KO penalty games: h/a = regular-time
+//   score, pens {h,a} = shootout tally (the scored + displayed result), winner = side
 // bonus/{pid} = {champion}
 // koTeams/{matchId} = {home, away}      real teams for knockout matches once known
 
