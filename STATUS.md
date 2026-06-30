@@ -2,6 +2,10 @@
 
 **Updated:** 2026-06-30 (Berlin) — **LIVE & VERIFIED** ✅
 
+## 2026-06-30 (abends) — Status-bar overlap fix (Neo, per Marc screenshot)
+- **Bug:** in the Rangliste, the top row (leader / `.me` cream highlight) was clipped behind the iOS clock once scrolled. Standalone PWA runs full-screen under the black-translucent status bar (`viewport-fit=cover`); `.app-header` carries `env(safe-area-inset-top)` but isn't sticky, so scrolling slides `#view` content under the status bar.
+- **Fix (`d38a321`, CSS only):** fixed `body::before` over the top inset, painted with the same pitch stripe gradient as the body → seamless at rest, masks scrolled content. Height 0 / invisible where no inset (desktop/Android). The tab bar floating mid-screen in Marc's screenshot was a full-page-screenshot artifact, not a bug (it's `position:fixed; bottom:0`).
+
 ## 2026-06-30 — Penalty-shootout results: shootout score = result, group rules (Neo, per Marc via Discord)
 - **Bug:** KO games decided on penalties showed as plain draws (`1:1`) and scored 0 for everyone. The sync stored a `winner` field on penalty draws (m74 Germany–Paraguay, m75 Netherlands–Morocco) but `scoring.js` + the result band ignored it.
 - **Final rule (per Marc, after a first wrong attempt):** a penalty game uses the **same rules as the group stage**, with the **penalty shootout score as the final result** (e.g. Germany 1:1 Paraguay, 3:4 on pens → result `3:4`, scored normally exact/diff/tendency). My first attempt (`46312ba`) used a special "tendency-only (2 pts) for the winner" rule — Marc rejected it ("gleiche Regeln wie zur Vorrunde"). Superseded by `0b00574`.
