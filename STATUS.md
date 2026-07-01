@@ -2,6 +2,12 @@
 
 **Updated:** 2026-06-30 (Berlin) — **LIVE & VERIFIED** ✅
 
+## 2026-07-01 — KO results from ESPN + last-card scroll clearance (Neo, per Marc screenshots)
+- **Bug A (functional):** a finished KO game (m79 Mexico–Ecuador) showed as not evaluated. Root cause: the ESPN pass (near real-time) only matched `stage === 'group'`; ALL knockout results depended on openfootball, which lags ~a day. ESPN already had `Mexico 2:0 Ecuador STATUS_FULL_TIME` while openfootball still had it `null`.
+  - Fix (`ab32772`): pass 1 in both `js/sync.js` + `scripts/sync-results.mjs` now also maps resolved KO pairings (`koTeams`) and writes a **decisive** ESPN result for them; a draw is left to openfootball pass 2 (winner + pens). Orientation aligned by team name (robust to ESPN/openfootball home-away disagreement). Verified vs live ESPN: m73/m76/m77/m78/m79 align with stored values, pen draws m74/m75 correctly skipped. m79 also backfilled directly in Firebase (2:0).
+- **Bug B (layout):** couldn't scroll the last match card clear of the fixed tab bar. `.view` bottom padding under-counted the tab-bar height (missing `env(safe-area-inset-bottom)`). Added it to the clearance calc.
+- Marc's two 07:00 screenshots did NOT flag the top status-bar overlap again (the mask from `d38a321` seems fine); the tab-bar-mid-screen was again a full-page-screenshot artifact.
+
 ## 2026-06-30 (abends) — Status-bar overlap fix (Neo, per Marc screenshot)
 - **Bug:** in the Rangliste, the top row (leader / `.me` cream highlight) was clipped behind the iOS clock once scrolled. Standalone PWA runs full-screen under the black-translucent status bar (`viewport-fit=cover`); `.app-header` carries `env(safe-area-inset-top)` but isn't sticky, so scrolling slides `#view` content under the status bar.
 - **Fix (`d38a321`, CSS only):** fixed `body::before` over the top inset, painted with the same pitch stripe gradient as the body → seamless at rest, masks scrolled content. Height 0 / invisible where no inset (desktop/Android). The tab bar floating mid-screen in Marc's screenshot was a full-page-screenshot artifact, not a bug (it's `position:fixed; bottom:0`).
