@@ -67,10 +67,21 @@ async function main() {
 
   let updated = 0;
 
-  // ── Pass 1: ESPN — timely group results (matched by team pair). ──
-  const groupByPair = new Map();
+  // ── Pass 1: ESPN — timely results (group + decisive knockout), by team pair. ──
+  // pair -> { id, home } where home is the real home-team name we align ESPN to.
+  const espnByPair = new Map();
   for (const m of matches) {
-    if (m.stage === 'group' && hasTeam(m.home) && hasTeam(m.away)) groupByPair.set(pairKey(m.home, m.away), m);
+    if (m.stage === 'group' && hasTeam(m.home) && hasTeam(m.away)) {
+      espnByPair.set(pairKey(m.home, m.away), { id: m.id, home: m.home, ko: false });
+    }
+  }
+  // Knockout teams are only known once the bracket resolves (koTeams). Take a
+  // DECISIVE result from ESPN too, so a finished KO game evaluates without waiting
+  // for openfootball (which lags ~a day). A draw likely went to ET/pens -> leave it
+  // to pass 2, which carries the winner + shootout score.
+  for (const [k, v] of Object.entries(curKo || {})) {
+    const id = parseInt(k.slice(1), 10);
+    if (v?.home && v?.away && oursById.has(id)) espnByPair.set(pairKey(v.home, v.away), { id, home: v.home, ko: true });
   }
   for (const range of ESPN_RANGES) {
     try {
@@ -85,17 +96,18 @@ async function main() {
         if (!H || !A) continue;
         const hn = norm(H.team?.displayName || H.team?.name);
         const an = norm(A.team?.displayName || A.team?.name);
-        const ours = groupByPair.get(pairKey(hn, an));
-        if (!ours) continue;
+        const tgt = espnByPair.get(pairKey(hn, an));
+        if (!tgt) continue;
         const hs = parseInt(H.score, 10), as = parseInt(A.score, 10);
         if (!Number.isInteger(hs) || !Number.isInteger(as)) continue;
-        const fh = hn === ours.home ? hs : as; // align ESPN orientation to ours
-        const fa = hn === ours.home ? as : hs;
-        const existing = curResults[mk(ours.id)];
+        const fh = hn === tgt.home ? hs : as; // align ESPN orientation to ours (by name)
+        const fa = hn === tgt.home ? as : hs;
+        if (tgt.ko && fh === fa) continue; // KO draw -> ET/pens, resolved by openfootball
+        const existing = curResults[mk(tgt.id)];
         if (!existing || existing.h !== fh || existing.a !== fa) {
           const fresh = { h: fh, a: fa, auto: true, k: RESULT_WRITE_KEY, espn: ev.id };
-          await dbPut(`results/${mk(ours.id)}`, fresh, tok);
-          curResults[mk(ours.id)] = fresh;
+          await dbPut(`results/${mk(tgt.id)}`, fresh, tok);
+          curResults[mk(tgt.id)] = fresh;
           updated++;
         }
       }

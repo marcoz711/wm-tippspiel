@@ -75,7 +75,9 @@ body::before {
 /* ── Layout ── */
 .view {
   max-width: 560px; margin: 0 auto;
-  padding: 10px 12px calc(var(--tabbar-h) + 24px);
+  /* Bottom clearance must cover the fixed tab bar, whose real height includes the
+     home-indicator inset — otherwise the last match card can't be scrolled clear of it. */
+  padding: 10px 12px calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom));
 }
 
 /* ── Cards (shared) ── */
