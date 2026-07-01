@@ -2,6 +2,9 @@
 
 **Updated:** 2026-06-30 (Berlin) — **LIVE & VERIFIED** ✅
 
+## 2026-07-01 (18:00) — Live tips m80 (Neo, per Marc via Discord)
+- England–DR Congo (m80, England home): `--palme--` 3:1, `--juli------` 4:0 ("Julia" = Juli). Both clean adds, written ~9 min BEFORE kickoff (18:00 Berlin). Read back to verify.
+
 ## 2026-07-01 — KO results from ESPN + last-card scroll clearance (Neo, per Marc screenshots)
 - **Bug A (functional):** a finished KO game (m79 Mexico–Ecuador) showed as not evaluated. Root cause: the ESPN pass (near real-time) only matched `stage === 'group'`; ALL knockout results depended on openfootball, which lags ~a day. ESPN already had `Mexico 2:0 Ecuador STATUS_FULL_TIME` while openfootball still had it `null`.
   - Fix (`ab32772`): pass 1 in both `js/sync.js` + `scripts/sync-results.mjs` now also maps resolved KO pairings (`koTeams`) and writes a **decisive** ESPN result for them; a draw is left to openfootball pass 2 (winner + pens). Orientation aligned by team name (robust to ESPN/openfootball home-away disagreement). Verified vs live ESPN: m73/m76/m77/m78/m79 align with stored values, pen draws m74/m75 correctly skipped. m79 also backfilled directly in Firebase (2:0).
